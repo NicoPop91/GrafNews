@@ -1,0 +1,16 @@
+
+
+export const Root = StackNavigator({
+  News: {
+    screen: News,
+  },
+  Settings: {
+    screen: Settings,
+  },
+  About: {
+    screen: About,
+  }
+}, {
+  mode: 'modal',
+  headerMode: 'none',
+});
