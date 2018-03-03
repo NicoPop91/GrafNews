@@ -18,3 +18,66 @@
     textStyle={{fontFamily:'Bodoni 72 Oldstyle'}}
   />
 </View>
+
+
+<View>
+              <DeckSwiper
+                dataSource={cards}
+                looping={true}
+                renderItem={item =>
+                  <Card style={{ elevation: 3 }}>
+                    <CardItem>
+                      <Left>
+                         <Thumbnail source={item.image} />
+                         <Body>
+                            <Text>{item.text}</Text>
+                             <Text note>NativeBase</Text>
+                          </Body>
+                        </Left>
+                     </CardItem>
+                     <CardItem cardBody>
+                        <Image style={{ height: 300, flex: 1 }} source={item.image} />
+                     </CardItem>
+                     <CardItem>
+                       <Icon name="heart" style={{ color: '#ED4A6A' }} />
+                       <Text>{item.name}</Text>
+                      </CardItem>
+                    </Card>
+                  }
+              />
+            </View>
+
+
+
+
+<View>
+                      <RkCard rkType='heroImage shadowed'>
+                        <View>
+                          <Image rkCardImg source={{uri:item.picture.thumbnail}}/>
+                          <View rkCardImgOverlay style={styles.overlay}>
+                            <View style={{marginBottom: 20}}>
+                              <RkText rkType='header xxlarge' style={{color: 'white'}}>${item.name.first} ${item.name.last}</RkText>
+                              <RkText rkType='subtitle' style={{color: 'white'}}>Subtitle</RkText>
+                            </View>
+                            <View style={styles.footerButtons}>
+                              <RkButton rkType='clear' style={{marginRight: 16}}>share</RkButton>
+                              <RkButton rkType='clear ' onPress={()=>this.openArticle()}>read more</RkButton>
+                            </View>
+                          </View>
+                        </View>
+                      </RkCard>
+                    </View>
+
+
+
+<Card
+                title={null}
+                image={{ url: item.picture.thumbnail }}
+                containerStyle={{ padding: 0, margin: 0, width: 160, borderWidth:0 }}
+                wrapperStyle={{ padding: 0, margin: 0, width: 160, borderWidth:0 }}
+                dividerStyle={{borderWidth:0}}
+                >
+                <Text style={{ marginBottom: 10 }}>
+                  {item.name.first} {item.name.last}
+                </Text>
+              </Card>

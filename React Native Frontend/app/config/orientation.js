@@ -1,5 +1,5 @@
 import { Dimensions } from 'react-native';
-var Orientation = require('./Orientation.js')
+var Orientation = require('./orientation.js')
 
 /**
  *
@@ -31,7 +31,7 @@ module.exports.isLandscape = () => {
  */
 module.exports.isTablet = () => {
     const dim = Dimensions.get('screen');
-    return ((dim.scale < 2 && msp(dim, 1000)) || (dim.scale >= 2 && Orientation.msp(dim, 1900)));
+    return ((dim.scale < 2 && Orientation.msp(dim, 1000)) || (dim.scale >= 2 && Orientation.msp(dim, 1900)));
 };
 
 /**
