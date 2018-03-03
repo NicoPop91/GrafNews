@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { AppRegistry, Text, View, StyleSheet, TextInput, Alert, Dimensions, Image, ScrollView, RefreshControl, FlatList, Linking, TouchableOpacity, ActivityIndicator} from 'react-native';
+import { AppRegistry, View, StyleSheet, TextInput, Alert, Dimensions, Image, ScrollView, TouchableHighlight, RefreshControl, FlatList, Linking, TouchableOpacity, ActivityIndicator, Platform} from 'react-native';
 import { List, ListItem, SearchBar, SocialIcon, Header, ButtonGroup, Button } from "react-native-elements";
+import { RkCard, RkText, RkButton } from "react-native-ui-kitten";
+import { DeckSwiper, CardItem, Card, Right, Left, Thumbnail, Body, Icon, Text } from "native-base"
 const Orientation = require('../config/orientation.js');
 
 //------------------------------------------------------------------------------
@@ -15,15 +17,12 @@ export default class News extends Component {
         orientation: Orientation.isPortrait() ? 'portrait' : 'landscape',
         devicetype: Orientation.isTablet() ? 'tablet' : 'phone',
         refreshing: false,
-        visible: false,
-        pointer: '▶',
         loading: false,
         data: [],
         page: 1,
         seed: 1,
         error: null,
-        refreshing: false,
-        selectedIndex: 0
+        refreshing: false
     };
 
     // Event Listener for orientation changes
@@ -32,11 +31,8 @@ export default class News extends Component {
             orientation: Orientation.isPortrait() ? 'portrait' : 'landscape'
         });
         dimensions = Dimensions.get('window');
-        this.renderSeparator();
         this.forceUpdate();
     });
-
-    this.updateIndex = this.updateIndex.bind(this)
   }
 
   componentDidMount() {
@@ -95,36 +91,57 @@ export default class News extends Component {
         }}
       />
     );
-    /*if(this.state.orientation == 'portrait'){
-      return (
-        <View
-          style={{
-            height: 1,
-            width: "87%",
-            backgroundColor: "#CED0CE",
-            marginLeft: "13%"
-          }}
-        />
-      );
-    } else {
-      return (
-        <View
-          style={{
-            height: 1,
-            width: "93%",
-            backgroundColor: "#CED0CE",
-            marginLeft: "7%"
-          }}
-        />
-      );
-    }*/
   };
 
   renderHeader = () => {
-    return <View style={{flex:1, flexDirection:'row', justifyContent:'center'}}>
-      <Text style={{fontWeight:'bold', fontSize:34, fontFamily:'Bodoni 72 Oldstyle'}}>GrafNews</Text>
+    return(
+    <View style={{}}>
+      <Text style={{fontWeight:'bold', fontSize:26, paddingLeft:10}}>
+        Local News
+      </Text>
+      <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0, flex:1, marginTop:0}}>
+        <FlatList
+          data={this.state.data}
+          renderItem={({ item }) => (
+            <TouchableHighlight onPress={()=>this.openArticle(item)}>
+              <Card>
+                <CardItem>
+                  <Left>
+                    <Thumbnail source={{uri: item.picture.thumbnail}} />
+                    <Body>
+                      <Text>{item.name.first} {item.name.last}</Text>
+                      <Text note>{item.gender}</Text>
+                    </Body>
+                  </Left>
+                </CardItem>
+                <CardItem cardBody>
+                  <Image source={{uri: item.picture.large}} style={{height: 150, width: null, flex: 1}}/>
+                </CardItem>
+                <CardItem>
+                  <Left>
+                  </Left>
+                  <Body>
+                  </Body>
+                  <Right>
+                    <Text>{item.location.state}</Text>
+                  </Right>
+                </CardItem>
+              </Card>
+            </TouchableHighlight>
+          )}
+          horizontal={true}
+          keyExtractor={item => item.email}
+          ItemSeparatorComponent={this.renderSeparator}
+          ListFooterComponent={this.renderFooter}
+          onEndReached={this.handleLoadMore}
+          onEndReachedThreshold={50}
+        />
+      </List>
+      <Text style={{fontWeight:'bold', fontSize:26, paddingLeft:10}}>
+        Other News
+      </Text>
     </View>
-
+    )
   };
 
   renderFooter = () => {
@@ -141,15 +158,6 @@ export default class News extends Component {
       </View>
     );
   };
-
-  // function to switch between the different arrow to read more or less
-  showHideTextComponentView = () => {
-      if(this.state.visible == true){
-        this.setState({visible: false, pointer: '▶'})
-      }else{
-        this.setState({visible: true, pointer: '▼'})
-      }
-  }
 
   //fetch data from url into json
   /*fetchData = async () => {
@@ -170,20 +178,6 @@ export default class News extends Component {
     this.fetchData();
   }*/
 
-  handleClick = () => {
-    Linking.canOpenURL(this.props.url).then(supported => {
-      if (supported) {
-        Linking.openURL(this.props.url);
-      } else {
-        console.log("Don't know how to open URI: " + this.props.url);
-      }
-    })
-  }
-
-  updateIndex = (selectedIndex) => {
-    this.setState({selectedIndex})
-  }
-
   openLink = (link) => {
     Linking.canOpenURL(link).then(supported => {
       if (supported) {
@@ -203,8 +197,6 @@ export default class News extends Component {
   }
 
   render() {
-    const buttons = ['📰 News', '⚙️ Settings', '📧 About']
-    const selectedIndex = this.state.selectedIndex
     const currentdate = new Date()
     const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
     const months = ['January','February','March','April','May','June','July','August','September','October','November','December']
@@ -216,28 +208,26 @@ export default class News extends Component {
                 data={this.state.data}
                 renderItem={({ item }) => (
                   <View>
-                  <ListItem
-                    roundAvatar
-                    title={`${item.name.first} ${item.name.last}`}
-                    subtitle={
-                      <View style={{flexDirection:'column', paddingLeft: 10, paddingTop: 5}}>
-                        <Text style={{color:'#808080'}}>
-                          {item.email}
-                        </Text>
-                        <Text style={{color:'#808080'}}>
-                          {days[currentdate.getDay()]} {currentdate.getDate()}. {months[currentdate.getMonth()]} {currentdate.getFullYear()} {currentdate.getHours()}:{currentdate.getMinutes()}
-                        </Text>
-                      </View>
-                    }
-                    avatar={{uri: item.picture.thumbnail}}
-                    containerStyle={{ borderBottomWidth: 0 }}
-                    onPress={() => this.openArticle(item)}
-                  />
+                    <RkCard rkType='heroImage shadowed'>
+                        <View>
+                          <Image rkCardImg source={{uri:item.picture.large}}/>
+                          <View rkCardImgOverlay style={styles.overlay}>
+                            <View style={{marginBottom: 20}}>
+                              <RkText rkType='header xxlarge' style={{color: 'white'}}>{item.name.first} {item.name.last}</RkText>
+                              <RkText rkType='subtitle' style={{color: 'white'}}>Subtitle</RkText>
+                            </View>
+                            <View style={styles.footerButtons}>
+                              <RkButton rkType='clear' style={{marginRight: 16}}>share</RkButton>
+                              <RkButton rkType='clear ' onPress={()=>this.openArticle(item)}>read more</RkButton>
+                            </View>
+                          </View>
+                        </View>
+                      </RkCard>
                   </View>
                 )}
                 keyExtractor={item => item.email}
                 ItemSeparatorComponent={this.renderSeparator}
-              //  ListHeaderComponent={this.renderHeader}
+                ListHeaderComponent={this.renderHeader}
                 ListFooterComponent={this.renderFooter}
                 onRefresh={this.handleRefresh}
                 refreshing={this.state.refreshing}
@@ -254,5 +244,43 @@ export default class News extends Component {
 //------------------------------------------------------------------------------
 
 const styles = StyleSheet.create({
-
+  screen: {
+    backgroundColor: '#f0f1f5',
+    padding: 12
+  },
+  buttonIcon: {
+    marginRight: 7,
+    fontSize: 19.7,
+  },
+  footer: {
+    marginHorizontal: 16
+  },
+  avatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    marginRight: 17
+  },
+  dot: {
+    fontSize: 6.5,
+    color: '#0000008e',
+    marginLeft: 2.5,
+    marginVertical: 10,
+  },
+  floating: {
+    width: 56,
+    height: 56,
+    position: 'absolute',
+    zIndex: 200,
+    right: 16,
+    top: 173,
+  },
+  footerButtons: {
+    flexDirection: 'row'
+  },
+  overlay: {
+    justifyContent: 'flex-end',
+    paddingVertical: 23,
+    paddingHorizontal: 16
+  }
 });
