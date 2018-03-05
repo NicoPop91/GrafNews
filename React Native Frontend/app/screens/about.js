@@ -16,16 +16,6 @@ export default class About extends Component {
   }
 
   render() {
-    const data = [
-      {
-        "name": {
-          "first": "Nico",
-          "second": ""
-        },
-
-      },
-    ]
-
     return (
       <View style={{flexDirection:'column'}}>
         <View style={{borderBottomWidth:1, flexDirection:'row'}}>
@@ -44,7 +34,7 @@ export default class About extends Component {
           <View style={{flex:1, flexDirection:'row', justifyContent:'flex-end', alignItems:'center'}}>
             <SocialIcon
               type='github'
-              onPress={()=>this.openLink('https://github.com/Blaupanzer')}
+              onPress={()=>this.openLink('https://github.com/MartinRippel')}
             />
             <SocialIcon
               type='twitter'
