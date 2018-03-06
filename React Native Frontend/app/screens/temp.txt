@@ -117,3 +117,5 @@
               </View>
             </RkCard>
           </View>
+
+file:node_modules\\react-native-vector-icons
