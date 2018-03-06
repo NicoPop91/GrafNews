@@ -81,3 +81,39 @@
                   {item.name.first} {item.name.last}
                 </Text>
               </Card>
+
+
+
+
+
+<View style={{flex:.5}}>
+            <RkCard rkType="heroImage shadowed" style={{}}>
+              <View>
+                <Image rkCardImg source={{ uri: item.picture.large }}/>
+                <View rkCardImgOverlay style={styles.overlay}>
+                  <View style={{ marginBottom: 20 }}>
+                    <RkText
+                      rkType="header xxlarge"
+                      style={{ color: "white" }}
+                    >
+                      {item.name.first} {item.name.last}
+                    </RkText>
+                    <RkText rkType="subtitle" style={{ color: "white" }}>
+                      Subtitle
+                    </RkText>
+                  </View>
+                  <View style={styles.footerButtons}>
+                    <RkButton rkType="clear" style={{ marginRight: 16 }}>
+                      share
+                    </RkButton>
+                    <RkButton
+                      rkType="clear "
+                      onPress={() => this.openArticle(item)}
+                    >
+                      read more
+                    </RkButton>
+                  </View>
+                </View>
+              </View>
+            </RkCard>
+          </View>
