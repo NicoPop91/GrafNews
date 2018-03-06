@@ -27,7 +27,8 @@
     "react-native-elements": "^0.19.0",
     "react-native-geocoder": "^0.5.0",
     "react-native-ui-kitten": "^3.0.0",
-    "react-native-vector-icons": "^4.5.0"
+    "react-native-vector-icons": "^4.5.0",
+    "react-navigation": "^1.4.0"
   },
   "rnpm": {
     "assets": [
