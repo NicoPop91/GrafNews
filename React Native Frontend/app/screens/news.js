@@ -9,12 +9,14 @@ import {
   Image,
   ScrollView,
   TouchableHighlight,
+  TouchableWithoutFeedback,
   RefreshControl,
   FlatList,
   Linking,
   TouchableOpacity,
   ActivityIndicator,
-  Platform
+  Platform,
+  WebView
 } from "react-native";
 import {
   List,
@@ -37,7 +39,18 @@ import {
   Icon,
   Text
 } from "native-base";
+import {
+  pixelDensity,
+  width,
+  height,
+  isIos,
+  isAndroid,
+  isPhone,
+  isTablet,
+  isIphoneX
+} from "react-native-device-detection";
 import { Font } from 'expo';
+const Device = require("react-native-device-detection");
 const Orientation = require("../config/orientation.js");
 
 //------------------------------------------------------------------------------
@@ -49,18 +62,17 @@ export default class News extends Component {
     this.state = {
       data: [],
       orientation: Orientation.isPortrait() ? "portrait" : "landscape",
-      devicetype: Orientation.isTablet() ? "tablet" : "phone",
+      devicetype: Device.isPhone ? "phone" : "tablet",
       refreshing: false,
       loading: false,
-      data: [],
       page: 1,
       seed: 1,
       error: null,
-      refreshing: false,
       latitude: null,
       longitude: null,
       geoError: null,
-      fontLoaded: false
+      componentDidMount: false,
+      currentArticle: null
     };
 
     // Event Listener for orientation changes
@@ -82,7 +94,7 @@ export default class News extends Component {
     await Font.loadAsync({
       'MoonGet': require('../../assets/fonts/moon_get-Heavy.ttf'),
     });
-    this.setState({ fontLoaded: true });
+    this.setState({ componentDidMount: true });
   }
 
   makeRemoteRequest = () => {
@@ -146,7 +158,8 @@ export default class News extends Component {
     return (
       <View
         style={{
-          height: 1,
+          height: '100%',
+          width: 1,
           backgroundColor: "#CED0CE"
         }}
       />
@@ -157,8 +170,8 @@ export default class News extends Component {
     return (
       <View style={{}}>
         {
-          this.state.fontLoaded ? (
-            <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingLeft: 10 }}>
+          this.state.componentDidMount ? (
+            <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingLeft: 10, paddingTop: 10 }}>
               Local News
             </Text>
           ) : null
@@ -173,9 +186,10 @@ export default class News extends Component {
         >
           <FlatList
             data={this.state.data}
+            numColumns={1}
             renderItem={({ item }) => (
-              <TouchableHighlight onPress={() => this.openArticle(item)}>
-                <Card>
+              <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
+                <Card style={{}}>
                   <CardItem>
                     <Left>
                       <Thumbnail source={{ uri: item.picture.thumbnail }} />
@@ -201,19 +215,19 @@ export default class News extends Component {
                     </Right>
                   </CardItem>
                 </Card>
-              </TouchableHighlight>
+              </TouchableWithoutFeedback>
             )}
             horizontal={true}
             keyExtractor={item => item.email}
-            ItemSeparatorComponent={this.renderSeparator}
+            //ItemSeparatorComponent={this.renderSeparator}
             ListFooterComponent={this.renderFooter}
             onEndReached={this.handleLoadMore}
             onEndReachedThreshold={50}
           />
         </List>
         {
-          this.state.fontLoaded ? (
-            <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingLeft: 10 }}>
+          this.state.componentDidMount ? (
+            <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingLeft: 10, paddingTop: 20 }}>
               Other News
             </Text>
           ) : null
@@ -221,6 +235,62 @@ export default class News extends Component {
       </View>
     );
   };
+
+  renderList = columns => {
+    return(
+    <List
+    containerStyle={{
+      borderTopWidth: 0,
+      borderBottomWidth: 0,
+      flex: 1,
+      marginTop: 0,
+      marginHorizontal:3
+    }}
+    >
+      <FlatList
+        data={this.state.data}
+        key={(this.state.orientation === 'portrait' ? 'portrait' : 'landscape')}
+        numColumns={columns}
+        renderItem={({ item }) => (
+          <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
+            <View style={{flex:1, margin:3, borderRadius:20, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
+              <Image
+                source={{ uri: item.picture.large }}
+                style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:20}}
+              />
+              <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
+                <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
+                  <View style={{opacity: 0.3, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:20, borderBottomRightRadius:20}}/>
+                  <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
+                    <Thumbnail source={{ uri: item.picture.thumbnail }} />
+                    <View style={{flexDirection:'row', justifyContent:'flex-start', paddingLeft:10}}>
+                      <View style={{flexDirection:'column', justifyContent:'space-between'}}>
+                        <Text style={{color:'white'}}>
+                          {item.name.first} {item.name.last}
+                        </Text>
+                        <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                          <Text note>{item.gender}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        )}
+        keyExtractor={item => item.email}
+        //ItemSeparatorComponent={this.renderSeparator}
+        ListHeaderComponent={this.renderHeader}
+        ListFooterComponent={this.renderFooter}
+        onRefresh={this.handleRefresh}
+        refreshing={this.state.refreshing}
+        onEndReached={this.handleLoadMore}
+        onEndReachedThreshold={50}
+      />
+    </List>
+    )
+  }
 
   renderFooter = () => {
     //if (!this.state.loading) return null;
@@ -242,7 +312,7 @@ export default class News extends Component {
       const response = await fetch('');
       const json = response.json();
       this.setState({date: json});
-  }*/
+  }
 
   //refresh the current view
   _onRefresh = () => {
@@ -252,7 +322,7 @@ export default class News extends Component {
     });
   };
 
-  /*componentWillMount() {
+  componentWillMount() {
     this.fetchData();
   }*/
 
@@ -267,7 +337,11 @@ export default class News extends Component {
   };
 
   openArticle = item => {
-    this.props.navigation.navigate("Details", item);
+    this.setState({ currentArticle: 'http://facebook.github.io/react-native/' })
+    this.forceUpdate();
+    if(this.state.orientation === 'portrait'){
+      this.props.navigation.navigate("Details", item);
+    }
   };
 
   random = (min, max) => {
@@ -302,67 +376,52 @@ export default class News extends Component {
     return (
       <View
         style={{
-          flexDirection: "column",
+          flexDirection: "row",
           justifyContent: "flex-start",
           flex: 1,
           backgroundColor: "white"
         }}
       >
         <View style={{ flex: 1 }}>
-          <List
-            containerStyle={{
-              borderTopWidth: 0,
-              borderBottomWidth: 0,
-              flex: 1,
-              marginTop: 0
-            }}
-          >
-            <FlatList
-              data={this.state.data}
-              renderItem={({ item }) => (
-                <View>
-                  <RkCard rkType="heroImage shadowed">
-                    <View>
-                      <Image rkCardImg source={{ uri: item.picture.large }} />
-                      <View rkCardImgOverlay style={styles.overlay}>
-                        <View style={{ marginBottom: 20 }}>
-                          <RkText
-                            rkType="header xxlarge"
-                            style={{ color: "white" }}
-                          >
-                            {item.name.first} {item.name.last}
-                          </RkText>
-                          <RkText rkType="subtitle" style={{ color: "white" }}>
-                            Subtitle
-                          </RkText>
-                        </View>
-                        <View style={styles.footerButtons}>
-                          <RkButton rkType="clear" style={{ marginRight: 16 }}>
-                            share
-                          </RkButton>
-                          <RkButton
-                            rkType="clear "
-                            onPress={() => this.openArticle(item)}
-                          >
-                            read more
-                          </RkButton>
-                        </View>
-                      </View>
-                    </View>
-                  </RkCard>
-                </View>
-              )}
-              keyExtractor={item => item.email}
-              ItemSeparatorComponent={this.renderSeparator}
-              ListHeaderComponent={this.renderHeader}
-              ListFooterComponent={this.renderFooter}
-              onRefresh={this.handleRefresh}
-              refreshing={this.state.refreshing}
-              onEndReached={this.handleLoadMore}
-              onEndReachedThreshold={50}
-            />
-          </List>
+          {
+            this.state.orientation === 'portrait' && this.state.devicetype === 'tablet' ? this.renderList(2) : null
+          }
+          {
+            this.state.orientation === 'portrait' && this.state.devicetype === 'phone' ? this.renderList(1) : null
+          }
+          {
+            this.state.orientation === 'landscape' ? this.renderList(1) : null
+          }
         </View>
+        {
+          this.state.orientation === 'landscape' && this.state.currentArticle !== null ? (
+            <View style={{flex:1.5}}>
+              <WebView
+                source={{uri: this.state.currentArticle}}
+              />
+            </View>
+          ) : null
+        }
+        {
+          this.state.orientation === 'landscape' ? (
+            <View
+              style={{
+                height: '100%',
+                width: 1,
+                backgroundColor: "#CED0CE"
+              }}
+            />
+          ) : null
+        }
+        {
+          this.state.orientation === 'landscape' && this.state.currentArticle === null ? (
+            <View style={{flex:1.5, justifyContent:'center'}}>
+              <Text style={{textAlign:'center', justifyContent:'center', alignItems:'center'}}>
+                Select an article from the list to read it
+              </Text>
+            </View>
+          ) : null
+        }
       </View>
     );
   }

@@ -18,7 +18,7 @@ export const NewsStack = StackNavigator({
     Details: {
       screen: ArticleDetail,
       navigationOptions: ({ navigation }) => ({
-        title: `${navigation.state.params.name.first.toUpperCase()} ${navigation.state.params.name.last.toUpperCase()}`,
+        title: `${navigation.state.params.name.first} ${navigation.state.params.name.last}`,
       }),
     },
   },
@@ -84,7 +84,5 @@ export const Tabs = TabNavigator({
     },
     animationEnabled: true,
     swipeEnabled: true,
-    allowFontScaling: 'true'
-
-
+    allowFontScaling: true
 });
