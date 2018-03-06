@@ -13,17 +13,33 @@ mongoose.connection
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 const ArticleSchema = new Schema({
-      title: { type: String },
-      _id: { type: ObjectId },
-      description: { type: String },
-      url: { type: String },
-      imageUrl: { type: String },
-      category: { type: String },
-      language: { type: String },
-      country: { type: String },
-      publishedAt: { type: String }
-    },
-    { usePushEach: true } // verhindert $pushAll und fixt alle Probleme von weiter unten!
+        title: {
+            type: String
+        },
+        description: {
+            type: String
+        },
+        url: {
+            type: String
+        },
+        urlToImage: {
+            type: String
+        },
+        category: {
+            type: String
+        },
+        language: {
+            type: String
+        },
+        country: {
+            type: String
+        },
+        publishedAt: {
+            type: String
+        }
+    }, {
+        usePushEach: true
+    } // verhindert $pushAll und fixt alle Probleme von weiter unten!
 );
 
 const Article = mongoose.model('article', ArticleSchema);
@@ -86,10 +102,10 @@ const context = {
 
 const resolvers = {
     Query: {
-        getAllArticles: (_, {}) =>{
+        getAllArticles: (_, {}) => {
             return Article.find({});
         },
-        getArticle:(_, id)=>{
+        getArticle: (_, id) => {
             return Article.findById(id);
         },
         /*getNews: (_, {
@@ -148,18 +164,88 @@ const resolvers = {
         },
     },
     Mutation: {
-      createArticle: (_, {
-          title,
-          description
-      })=>{
-          return (new Article({title: title, description: description})).save();
-      },
-      deleteArticle: (_,_id)=>{
-          Article.remove({ _id: _id }).then(()=>{return Article.findById(_id)});
-          //return Article.find({});
-      },
+        createArticle: (_, {
+            title,
+            description
+        }) => {
+            return (new Article({
+                title: title,
+                description: description
+            })).save();
+        },
+        deleteArticle: (_, _id) => {
+            Article.remove({
+                _id: _id
+            }).then(() => {
+                return Article.findById(_id)
+            });
+            //return Article.find({});
+        },
     },
 }
+
+
+
+setInterval(() => {
+    newsapi.v2.topHeadlines({
+        category: 'general',
+        language: 'de',
+        country: 'de',
+    }).then((response) => {
+        //console.log(response);
+        return response.articles;
+    }).then((articles) => {
+        articles.forEach((article) => {
+            Article.find({
+                    description: article.description
+                })
+                .then((result) => {
+                    //console.log(result.length);
+                    if (result.length == 0) {
+                        new Article({
+                            title: article.title,
+                            description: article.description,
+                            url: article.url,
+                            urlToImage: article.urlToImage,
+                            publishedAt: article.publishedAt,
+                            category: 'general',
+                            country: 'de',
+                            language: 'de',
+                        }).save();
+                    }
+                });
+        });
+    });
+    newsapi.v2.topHeadlines({
+        category: 'general',
+        language: 'en',
+        country: 'us',
+    }).then((response) => {
+        //console.log(response);
+        return response.articles;
+    }).then((articles) => {
+        articles.forEach((article) => {
+            Article.find({
+                    description: article.description
+                })
+                .then((result) => {
+                    //console.log(result.length);
+                    if (result.length == 0) {
+                        new Article({
+                            title: article.title,
+                            description: article.description,
+                            url: article.url,
+                            urlToImage: article.urlToImage,
+                            publishedAt: article.publishedAt,
+                            category: 'general',
+                            country: 'us',
+                            language: 'en',
+                        }).save();
+                    }
+                });
+        });
+    });
+}, 5000);
 
 const server = new GraphQLServer({
     typeDefs,
