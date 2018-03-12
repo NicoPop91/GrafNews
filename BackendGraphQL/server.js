@@ -7,10 +7,11 @@ const schema = require('./schema/schema');
 
 const app = express();
 
-const MONGO_URI = 'mongodb://localhost:27017/';
+const MONGO_URI = 'mongodb://localhost:27017/NewsDB';
 if (!MONGO_URI) {
   throw new Error('You must provide a MongoLab URI');
 }
+
 
 mongoose.Promise = global.Promise;
 mongoose.connect(MONGO_URI);

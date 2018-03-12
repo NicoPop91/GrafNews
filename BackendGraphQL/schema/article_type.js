@@ -4,9 +4,10 @@ const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList } = graphql;
 
 const ArticleType = new GraphQLObjectType({
   name: 'Article',
-  fields: () => ({      //fields wird zur Funktion gemacht, weil sonst UserType noch nicht definiert wurde
+  fields: () => ({
     id: { type: GraphQLString },
     name: { type: GraphQLString },
+    title: { type: GraphQLString },
     description: { type: GraphQLString },
     url: { type: GraphQLString },
     imageUrl: { type: GraphQLString },
