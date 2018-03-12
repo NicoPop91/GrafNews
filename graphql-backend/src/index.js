@@ -35,7 +35,7 @@ const ArticleSchema = new Schema({
             type: String
         },
         publishedAt: {
-            type: String
+            type: Date
         }
     }, {
         usePushEach: true
@@ -207,7 +207,7 @@ setInterval(() => {
                             description: article.description,
                             url: article.url,
                             urlToImage: article.urlToImage,
-                            publishedAt: article.publishedAt,
+                            publishedAt: new Date(article.publishedAt),
                             category: 'general',
                             country: 'de',
                             language: 'de',
@@ -236,7 +236,7 @@ setInterval(() => {
                             description: article.description,
                             url: article.url,
                             urlToImage: article.urlToImage,
-                            publishedAt: article.publishedAt,
+                            publishedAt: new Date(article.publishedAt),
                             category: 'general',
                             country: 'us',
                             language: 'en',
