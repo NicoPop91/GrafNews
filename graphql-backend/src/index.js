@@ -57,6 +57,8 @@ const typeDefs = `
     deleteArticle(_id: String):Article,
   },
 
+  scalar Date,
+
   type Article {
     _id: String,
     source: Source,
@@ -65,7 +67,7 @@ const typeDefs = `
     description: String,
     url: String,
     urlToImage: String,
-    publishedAt: String,
+    publishedAt: Date,
   },
   type Source {
     id: String,
