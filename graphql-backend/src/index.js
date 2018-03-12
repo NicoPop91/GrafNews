@@ -5,7 +5,7 @@ const {
 const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI('188776de06144080885d5b3f324f05e7');
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://192.168.99.100:32769/MyDatabase');
+mongoose.connect('mongodb://192.168.99.100:32778/MyDatabase');
 mongoose.connection
     .once('open', () => console.log('Connected to MongoLab instance.'))
     .on('error', error => console.log('Error connecting to MongoLab:', error));
