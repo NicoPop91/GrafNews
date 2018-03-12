@@ -10,7 +10,7 @@ const ArticleSchema = new Schema({
       category: { type: String },
       language: { type: String },
       country: { type: String },
-      publishedAt: { type: String }
+      publishedAt: { type: Date }
     },
     { usePushEach: true } // verhindert $pushAll und fixt alle Probleme von weiter unten!
 );

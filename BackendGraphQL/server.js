@@ -7,7 +7,9 @@ const schema = require('./schema/schema');
 
 const app = express();
 
+
 const MONGO_URI = 'mongodb://localhost:27017/NewsDB';
+// const MONGO_URI = 'http://9p7wpw3ppo75fifx.myfritz.net:4000/playground';
 if (!MONGO_URI) {
   throw new Error('You must provide a MongoLab URI');
 }

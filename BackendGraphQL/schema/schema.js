@@ -30,7 +30,14 @@ const RootQuery = new GraphQLObjectType({
       resolve(parentValue, { id }) {
         return Article.findById(id);
       }
-    }
+    },
+  /*  newArticles: {
+      type: new GraphQLList(ArticleType),
+      args: { }
+      resolve() {
+        return Article.find({});
+      }
+    } */
   })
 });
 
