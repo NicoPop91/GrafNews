@@ -3,10 +3,10 @@ const Schema = mongoose.Schema;
 
 const ArticleSchema = new Schema({
       title: { type: String },
-      id: { type: String },
+      // id: { type: String },
       description: { type: String },
       url: { type: String },
-      imageUrl: { type: String },
+      urlToImage: { type: String },
       category: { type: String },
       language: { type: String },
       country: { type: String },

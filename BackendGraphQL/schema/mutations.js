@@ -1,5 +1,6 @@
 const graphql = require('graphql');
 const { GraphQLObjectType, GraphQLString, GraphQLID } = graphql;
+const { GraphQLDateTime } =  'graphql-iso-date';
 const mongoose = require('mongoose');
 const Article = mongoose.model('article');
 const ArticleType = require('./article_type');
