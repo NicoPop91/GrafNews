@@ -119,3 +119,78 @@
           </View>
 
 file:node_modules\\react-native-vector-icons
+
+
+{
+          this.state.orientation === 'landscape' ? (
+            <Slider
+              style={{ position:'absolute', top: '50%', left:30, right:0 }}
+              step={1}
+              minimumValue={0}
+              maximumValue={5}
+              value={this.state.sliderPosition}
+              onValueChange={value => this.setState({ sliderPosition: value })}
+              //onSlidingComplete={ val => this.getVal(val)}
+            />
+            ) : null
+          }
+
+
+          /*makeRemoteRequest = () => {
+    const { page, seed } = this.state;
+    const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=20`;
+    this.setState({ loading: true });
+    fetch(url)
+      .then(res => res.json())
+      .then(res => {
+        this.setState({
+          data: page === 1 ? res.results : [...this.state.data, ...res.results],
+          error: res.error || null,
+          loading: false,
+          refreshing: false
+        });
+      })
+      .catch(error => {
+        this.setState({ error, loading: false });
+      });
+  };*/
+
+
+
+
+  return (
+      <View style={{ padding: 20 }}>
+        <TextInput
+          style={{ borderColor: "gray", borderWidth: 0.3, fontSize: 24 }}
+          onChangeText={text => this.setState({ text })}
+          value={this.state.text}
+          placeholderTextColor={"grey"}
+          allowFontScaling={true}
+          autoFocus={true}
+          placeholder={"Title"}
+          maxHeight={400}
+          multiline={false}
+        />
+        <Divider style={{ height: 20, backgroundColor: "transparent" }} />
+        <TextInput
+          style={{ borderColor: "gray", borderWidth: 0.3 }}
+          onChangeText={text => this.setState({ text })}
+          value={this.state.text}
+          placeholderTextColor={"grey"}
+          allowFontScaling={true}
+          placeholder={"Your text starts here ..."}
+          maxHeight={400}
+          multiline={true}
+        />
+        <Divider style={{ height: 20, backgroundColor: "transparent" }} />
+        <Button
+          title={"Press"}
+          style={{ width: 200 }}
+          onPress={() => {
+            this.getPhotosFromGallery();
+          }}
+        />
+        {this.}
+        <ViewPhotos photoArray={this.state.photoArray} />
+      </View>
+    );

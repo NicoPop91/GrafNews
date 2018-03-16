@@ -16,7 +16,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Platform,
-  WebView
+  WebView,
+  Slider,
+  ImageBackground
 } from "react-native";
 import {
   List,
@@ -25,7 +27,8 @@ import {
   SocialIcon,
   Header,
   ButtonGroup,
-  Button
+  Button,
+  Icon
 } from "react-native-elements";
 import { RkCard, RkText, RkButton } from "react-native-ui-kitten";
 import {
@@ -36,7 +39,6 @@ import {
   Left,
   Thumbnail,
   Body,
-  Icon,
   Text
 } from "native-base";
 import {
@@ -49,11 +51,15 @@ import {
   isTablet,
   isIphoneX
 } from "react-native-device-detection";
+import SegmentedControlTab from 'react-native-segmented-control-tab'
 import { Font } from 'expo';
 const Device = require("react-native-device-detection");
 const Orientation = require("../config/orientation.js");
+const { createApolloFetch } = require('apollo-fetch');
 
 //------------------------------------------------------------------------------
+
+const testImage= 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Test_card.png';
 
 export default class News extends Component {
   constructor(props) {
@@ -72,7 +78,9 @@ export default class News extends Component {
       longitude: null,
       geoError: null,
       componentDidMount: false,
-      currentArticle: null
+      currentArticle: null,
+      selectedTab: 0,
+      sliderPosition: 0
     };
 
     // Event Listener for orientation changes
@@ -84,6 +92,21 @@ export default class News extends Component {
       this.forceUpdate();
     });
   }
+
+  static navigationOptions = ({ navigation }) => {
+    return {
+        title: 'Write Article',
+        headerRight: (
+            <Icon
+              name="message"
+              onPress={() => navigation.navigate('WriteArticle')}
+            />
+        ), 
+        style: {
+            marginTop: Platform.OS === 'android' ? 24 : 0 
+        },
+    }
+  };
 
   async componentDidMount() {
     this.getLocation;
@@ -98,22 +121,24 @@ export default class News extends Component {
   }
 
   makeRemoteRequest = () => {
-    const { page, seed } = this.state;
-    const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=20`;
-    this.setState({ loading: true });
-    fetch(url)
-      .then(res => res.json())
-      .then(res => {
-        this.setState({
-          data: page === 1 ? res.results : [...this.state.data, ...res.results],
-          error: res.error || null,
-          loading: false,
-          refreshing: false
-        });
-      })
-      .catch(error => {
-        this.setState({ error, loading: false });
+    const fetch = createApolloFetch({
+      uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+    });
+    fetch({
+      query: '{getAllArticles {_id source {id} author title description url urlToImage publishedAt}}',
+    })
+    .then(res => {
+      this.setState({
+        data: res.data.getAllArticles,
+        loading: false,
+        refreshing: false
       });
+    }).then(res => {
+      console.log(this.state.data);
+    })
+    .catch(error => {
+      this.setState({ error, loading: false });
+    });
   };
 
   getGeoLocation = () => {
@@ -154,6 +179,13 @@ export default class News extends Component {
     );
   };
 
+  handleIndexChange = (index) => {
+    this.setState({
+      ...this.state,
+      selectedTab: index,
+    });
+  };
+
   renderSeparator = () => {
     return (
       <View
@@ -181,7 +213,8 @@ export default class News extends Component {
             borderTopWidth: 0,
             borderBottomWidth: 0,
             flex: 1,
-            marginTop: 0
+            marginTop: 0,
+            backgroundColor: 'transparent'
           }}
         >
           <FlatList
@@ -192,33 +225,28 @@ export default class News extends Component {
                 <Card style={{}}>
                   <CardItem>
                     <Left>
-                      <Thumbnail source={{ uri: item.picture.thumbnail }} />
+                      <Thumbnail 
+                        source={{ uri: item.urlToImage || testImage }}
+                      />
                       <Body>
                         <Text>
-                          {item.name.first} {item.name.last}
+                          {item.title || 'No title available'}
                         </Text>
-                        <Text note>{item.gender}</Text>
+                        <Text note>{item.source || item.author || 'No publisher available'}</Text>
                       </Body>
                     </Left>
                   </CardItem>
                   <CardItem cardBody>
                     <Image
-                      source={{ uri: item.picture.large }}
+                      source={{ uri: item.urlToImage || testImage }}
                       style={{ height: 150, width: null, flex: 1 }}
                     />
-                  </CardItem>
-                  <CardItem>
-                    <Left />
-                    <Body />
-                    <Right>
-                      <Text>{item.location.state}</Text>
-                    </Right>
                   </CardItem>
                 </Card>
               </TouchableWithoutFeedback>
             )}
             horizontal={true}
-            keyExtractor={item => item.email}
+            keyExtractor={item => item._id}
             //ItemSeparatorComponent={this.renderSeparator}
             ListFooterComponent={this.renderFooter}
             onEndReached={this.handleLoadMore}
@@ -236,40 +264,43 @@ export default class News extends Component {
     );
   };
 
-  renderList = columns => {
+  renderList = (columns, data) => {
     return(
     <List
-    containerStyle={{
+      containerStyle={{
       borderTopWidth: 0,
       borderBottomWidth: 0,
       flex: 1,
       marginTop: 0,
-      marginHorizontal:3
+      marginHorizontal:3,
+      backgroundColor:'transparent',
     }}
     >
       <FlatList
-        data={this.state.data}
+        data={data}
         key={(this.state.orientation === 'portrait' ? 'portrait' : 'landscape')}
         numColumns={columns}
         renderItem={({ item }) => (
           <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
             <View style={{flex:1, margin:3, borderRadius:20, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
               <Image
-                source={{ uri: item.picture.large }}
+                source={{ uri: item.urlToImage || testImage }}
                 style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:20}}
               />
               <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
                 <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
                   <View style={{opacity: 0.3, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:20, borderBottomRightRadius:20}}/>
                   <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
-                    <Thumbnail source={{ uri: item.picture.thumbnail }} />
-                    <View style={{flexDirection:'row', justifyContent:'flex-start', paddingLeft:10}}>
+                    <Thumbnail source={{ uri: item.urlToImage || testImage }} />
+                    <View style={{flexDirection:'row', flex:1, justifyContent:'flex-start', paddingLeft:10}}>
                       <View style={{flexDirection:'column', justifyContent:'space-between'}}>
-                        <Text style={{color:'white'}}>
-                          {item.name.first} {item.name.last}
-                        </Text>
+                        <View style={{}}>
+                          <Text style={{color:'white'}}>
+                            {item.title || 'No title available'}
+                          </Text>
+                        </View>
                         <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                          <Text note>{item.gender}</Text>
+                          <Text note>{item.source || item.author || 'No publisher available'}</Text>
                         </View>
                       </View>
                     </View>
@@ -279,9 +310,13 @@ export default class News extends Component {
             </View>
           </TouchableWithoutFeedback>
         )}
-        keyExtractor={item => item.email}
+        keyExtractor={item => item._id}
         //ItemSeparatorComponent={this.renderSeparator}
-        ListHeaderComponent={this.renderHeader}
+        ListHeaderComponent={
+          this.state.orientation === 'portrait' ? (
+            this.renderHeader
+           ) : null
+        }
         ListFooterComponent={this.renderFooter}
         onRefresh={this.handleRefresh}
         refreshing={this.state.refreshing}
@@ -337,10 +372,10 @@ export default class News extends Component {
   };
 
   openArticle = item => {
-    this.setState({ currentArticle: 'http://facebook.github.io/react-native/' })
+    this.setState({ currentArticle: item.url })
     this.forceUpdate();
     if(this.state.orientation === 'portrait'){
-      this.props.navigation.navigate("Details", item);
+      this.props.navigation.navigate('ArticleDetail', item.url);
     }
   };
 
@@ -374,55 +409,69 @@ export default class News extends Component {
       "December"
     ];
     return (
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "flex-start",
-          flex: 1,
-          backgroundColor: "white"
-        }}
-      >
-        <View style={{ flex: 1 }}>
-          {
-            this.state.orientation === 'portrait' && this.state.devicetype === 'tablet' ? this.renderList(2) : null
-          }
-          {
-            this.state.orientation === 'portrait' && this.state.devicetype === 'phone' ? this.renderList(1) : null
-          }
-          {
-            this.state.orientation === 'landscape' ? this.renderList(1) : null
-          }
-        </View>
-        {
-          this.state.orientation === 'landscape' && this.state.currentArticle !== null ? (
-            <View style={{flex:1.5}}>
-              <WebView
-                source={{uri: this.state.currentArticle}}
+      <ImageBackground source={{uri:'https://images.pexels.com/photos/255379/pexels-photo-255379.jpeg?w=1260&h=750&dpr=2&auto=compress&cs=tinysrgb'}} style={{width: '100%', height: '100%'}}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-start",
+            flex: 1,
+            opacity: 1
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            {
+              this.state.orientation === 'portrait' && this.state.devicetype === 'tablet' ? this.renderList(2, this.state.data) : null
+            }
+            {
+              this.state.orientation === 'portrait' && this.state.devicetype === 'phone' ? this.renderList(1, this.state.data) : null
+            }
+            {
+            this.state.orientation === 'landscape' ? (
+              <SegmentedControlTab
+                values={['Local News', 'Other News']}
+                selectedIndex={this.state.selectedTab}
+                onTabPress={this.handleIndexChange}
+                tabsContainerStyle={{padding:5}}
               />
-            </View>
-          ) : null
-        }
-        {
-          this.state.orientation === 'landscape' ? (
-            <View
-              style={{
-                height: '100%',
-                width: 1,
-                backgroundColor: "#CED0CE"
-              }}
-            />
-          ) : null
-        }
-        {
-          this.state.orientation === 'landscape' && this.state.currentArticle === null ? (
-            <View style={{flex:1.5, justifyContent:'center'}}>
-              <Text style={{textAlign:'center', justifyContent:'center', alignItems:'center'}}>
-                Select an article from the list to read it
-              </Text>
-            </View>
-          ) : null
-        }
-      </View>
+              ) : null
+            }
+            {
+              this.state.orientation === 'landscape' ? (
+                this.renderList(1, this.state.data)
+                ) : null
+            }
+          </View>
+          {
+            this.state.orientation === 'landscape' ? (
+              <View
+                style={{
+                  height: '100%',
+                  width: 1,
+                  backgroundColor: "#CED0CE"
+                }}
+              />
+            ) : null
+          }
+          {
+            this.state.orientation === 'landscape' && this.state.currentArticle !== null ? (
+              <View style={{flex:1.5}}>
+                <WebView
+                  source={{uri: this.state.currentArticle}}
+                />
+              </View>
+            ) : null
+          }
+          {
+            this.state.orientation === 'landscape' && this.state.currentArticle === null ? (
+              <View style={{flex:1.5, justifyContent:'center'}}>
+                <Text style={{textAlign:'center', justifyContent:'center', alignItems:'center'}}>
+                  Select an article from the list to read it
+                </Text>
+              </View>
+            ) : null
+          }
+        </View>   
+      </ImageBackground>        
     );
   }
 }
