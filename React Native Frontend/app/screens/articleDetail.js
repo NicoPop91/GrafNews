@@ -29,8 +29,9 @@ const Orientation = require("../config/orientation.js");
 
 export default class ArticleDetail extends Component {
   render() {
+    const {url}= this.props.navigation.state.params;
     return (
-      <WebView source={{ uri: "https://github.com/facebook/react-native" }} />
+      <WebView source={{ uri: url }} />
     );
   }
 }
