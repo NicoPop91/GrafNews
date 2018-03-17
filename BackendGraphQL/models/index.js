@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const ArticleSchema = new Schema({
       title: { type: String },
-      // id: { type: String },
+      author: { type: String },
       description: { type: String },
       url: { type: String },
       urlToImage: { type: String },
