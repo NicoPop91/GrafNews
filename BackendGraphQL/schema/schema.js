@@ -31,13 +31,13 @@ const RootQuery = new GraphQLObjectType({
             /*Article.find({
                 "publishedAt": {"$lte": {"$date": new Date(args.date)}}
                  }).limit(50).then((result)=>{console.log(result)});*/
-            return Article.where('publishedAt').gte(args.date).limit(50).sort('publishedAt');
+            return Article.where('publishedAt').lte(args.date).sort('-publishedAt').limit(100);
         }
         //return Article.find({});
         let d = new Date();
         d.setHours(d.getHours()-2);
         //console.log(d);
-        return Article.where('publishedAt').gte(d).limit(50).sort('publishedAt');
+        return Article.where('publishedAt').gte(d).sort('-publishedAt').limit(100);
       }
     },
     article: {
