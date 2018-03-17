@@ -42,6 +42,30 @@ export default class About extends Component {
             />
           </View>
         </View>
+        <View style={{borderBottomWidth:1, flexDirection:'row'}}>
+          <View style={{flex:1, marginLeft:10}}>
+            <View>
+              <Text style={{fontSize:24}}>
+                Jan Zimny
+              </Text>
+            </View>
+            <View style={{flexDirection:'row'}}>
+              <Text style={{fontSize:20, color:'#808080'}}>
+                Vice-Lead UI Designer oder so
+              </Text>
+            </View>
+          </View>
+          <View style={{flex:1, flexDirection:'row', justifyContent:'flex-end', alignItems:'center'}}>
+            <SocialIcon
+              type='github'
+              onPress={()=>this.openLink('https://github.com/wucub')}
+            />
+            <SocialIcon
+              type='twitter'
+              onPress={()=>this.openLink('https://twitter.com/martin_rippel')}
+            />
+          </View>
+        </View>
       </View>
     );
   }
