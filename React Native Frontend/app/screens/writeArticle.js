@@ -16,8 +16,6 @@ import { Divider, Icon, Button } from "react-native-elements";
 import ViewPhotos from "./viewPhotos";
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import Share from 'react-native-share'
-import RNFetchBlob from 'react-native-fetch-blob'
 const { createApolloFetch } = require('apollo-fetch');
 
 export default class WriteArticle extends Component {
@@ -34,7 +32,8 @@ export default class WriteArticle extends Component {
       language: null,
       category: null,
       country: null,
-      date: null
+      date: null,
+      photos: null
     };
   }
 
@@ -57,17 +56,19 @@ export default class WriteArticle extends Component {
   };
 
   sumbit = () => {
+    console.log("Trying to submit " + this.state.author + "; " + this.state.title + "; " + this.state.text + "; " + this.state.url + "; " + this.state.image + "; " + this.state.category + "; " + this.state.language + "; " + this.state.country + "; " + this.state.date );
     const fetch = createApolloFetch({
       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
     });
     fetch({
-      query: 'mutation {addArticle(author: ${this.state.author} title: ${this.state.title} description: ${this.state.text} url: ${this.state.url} urlToImage: ${this.state.image} category: ${this.state.category} language: ${this.state.language} country: ${this.state.country} publishedAt: ${this.state.date}) { id }}'
+      query: 'mutation {addArticle(author: ${this.state.author || undefined} title: ${this.state.title || undefined} description: ${this.state.text || undefined} url: ${this.state.url || undefined} urlToImage: ${this.state.image || undefined} category: ${this.state.category || undefined} language: ${this.state.language || undefined} country: ${this.state.country || undefined} publishedAt: ${this.state.date || undefined}) { id }}'
+    })
+    .then(respnse => {
+      console.log('Article was generated with id ' + respnse.data.addArticle.id)
     })
     .catch(error => {
-      console.log('Error while submitting article');
+      console.log('Error while submitting article: ' + error);
     });
-    console.log("Submitted " + this.state.title + this.state.text + this.state.image);
-    //this.props.navigation.goBack();
   };
 
   getPhotosFromGallery() {
@@ -102,6 +103,17 @@ export default class WriteArticle extends Component {
           placeholder={"Your text starts here ..."}
           maxHeight={400}
           multiline={true}
+        />
+        <Divider style={{ height: 20, backgroundColor: "transparent" }} />
+        <TextInput
+          style={{ borderColor: "gray", borderWidth: 0}}
+          onChangeText={author => this.setState({ author })}
+          value={this.state.author}
+          placeholderTextColor={"grey"}
+          allowFontScaling={true}
+          placeholder={"Author ..."}
+          maxHeight={400}
+          multiline={false}
         />
         <Divider style={{ height: 20, backgroundColor: "transparent" }} />
         <TextInput
