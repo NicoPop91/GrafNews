@@ -174,3 +174,183 @@ file:node_modules\\react-native-vector-icons
         <ViewPhotos photoArray={this.state.photoArray} />
       </View>
     );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <View>
+        <ScrollView style={{ flexDirection:'column', padding: 20 }}>
+          <TextInput
+            style={{ borderColor: "gray", borderWidth: 0, fontSize: 24 }}
+            onChangeText={title => this.setState({ title })}
+            value={this.state.title}
+            placeholderTextColor={"grey"}
+            allowFontScaling={true}
+            autoFocus={true}
+            placeholder={"Title ..."}
+            maxHeight={400}
+            multiline={false}
+          />
+          <Divider style={{ height: 20, backgroundColor: "transparent" }} />
+          <TextInput
+            style={{ borderColor: "gray", borderWidth: 0 }}
+            onChangeText={text => this.setState({ text })}
+            value={this.state.text}
+            placeholderTextColor={"grey"}
+            allowFontScaling={true}
+            placeholder={"Your text starts here ..."}
+            maxHeight={400}
+            multiline={true}
+          />
+          <Divider style={{ height: 20, backgroundColor: "transparent" }} />
+          <TextInput
+            style={{ borderColor: "gray", borderWidth: 0}}
+            onChangeText={author => this.setState({ author: author })}
+            value={this.state.author}
+            placeholderTextColor={"grey"}
+            allowFontScaling={true}
+            placeholder={"Author ..."}
+            maxHeight={400}
+            multiline={false}
+          />
+          <Divider style={{ height: 20, backgroundColor: "transparent" }} />
+          <View style={{flexDirection:'row'}}>
+            <Button
+              title={"Category"}
+              onPress={() => {this.setActiveMenu('Category')}}
+            />
+            <Button
+              title={"Language"}
+              onPress={() => {this.setActiveMenu('Language')}}
+            />
+            <Button
+              title={"Country"}
+              onPress={() => {this.setActiveMenu('Country')}}
+            />
+          </View>
+          <Divider style={{ height: 20, backgroundColor: "transparent" }} />
+          <TextInput
+            style={{ borderColor: "gray", borderWidth: 0}}
+            onChangeText={url => this.setState({ url: url })}
+            value={this.state.url}
+            placeholderTextColor={"grey"}
+            allowFontScaling={true}
+            placeholder={"URL ..."}
+            maxHeight={400}
+            multiline={false}
+          />
+          <Divider style={{ height: 20, backgroundColor: "transparent" }} />
+          <TextInput
+            style={{ borderColor: "gray"}}
+            onChangeText={image => this.setState({ image: image })}
+            value={this.state.image}
+            placeholderTextColor={"grey"}
+            allowFontScaling={true}
+            placeholder={"URL to image ..."}
+            maxHeight={400}
+            multiline={false}
+          />
+          <Divider style={{ height: 20, backgroundColor: "transparent" }} />
+          {
+            this.state.image !== null ? (
+              <Image
+                source={{ uri: this.state.image}}
+              />
+            ):(
+              null
+            )
+          }
+          <DatePicker
+            style={{width: '100%'}}
+            date={this.state.date}
+            mode="datetime"
+            placeholder="select date"
+            format="YYYY-MM-DD hh:mm:ss a"
+            confirmBtnText="Confirm"
+            cancelBtnText="Cancel"
+            customStyles={{
+              dateIcon: {
+                position: 'absolute',
+                left: 0,
+                top: 4,
+                marginLeft: 0
+              },
+              dateInput: {
+                marginLeft: 36
+              },
+              btnTextConfirm: {
+                color: '#007AFF'
+              }
+            }}
+            onDateChange={(date) => {this.setState({date: date})}}
+          />
+          <Divider style={{ height: 20, backgroundColor: "transparent" }} />
+          <Button
+            title={"Submit"}
+            onPress={() => {this.sumbit()}}
+          />
+          <Divider style={{ height: 20, backgroundColor: "transparent" }} />
+        </ScrollView>
+        <View style={{borderWidth:0, backgroundColor:'grey'}}>
+            { this.state.activeMenu === 'Category' ? (
+              <Picker
+                style={{flex:1, backgroundColor:'transparent'}}
+                selectedValue={this.state.category}
+                onValueChange={(itemValue,itemIndex) => this.setState({category:itemValue})}
+                mode={'dialog'}
+                prompt={'category'}
+              >
+                <Picker.Item label={label_categories[0]} value={categories[0]} />
+                <Picker.Item label={label_categories[1]} value={categories[1]} />
+                <Picker.Item label={label_categories[2]} value={categories[2]} />
+                <Picker.Item label={label_categories[3]} value={categories[3]} />
+                <Picker.Item label={label_categories[4]} value={categories[4]} />
+                <Picker.Item label={label_categories[5]} value={categories[5]} />
+                <Picker.Item label={label_categories[6]} value={categories[6]} />
+              </Picker>
+            ):(
+              null
+            )}
+
+            { this.state.activeMenu === 'Language' ? (
+              <Picker
+                style={{flex:1, backgroundColor:'transparent'}}
+                selectedValue={this.state.language}
+                onValueChange={(itemValue,itemIndex) => this.setState({language:itemValue})}
+                mode={'dialog'}
+                prompt={'language'}
+              >
+                <Picker.Item label={label_languages[0]} value={languages[0]} />
+                <Picker.Item label={label_languages[1]} value={languages[1]} />
+              </Picker>
+            ):(
+              null
+            )}
+
+            { this.state.activeMenu === 'Country' ? (
+              <Picker
+                style={{flex:1, backgroundColor:'transparent'}}
+                selectedValue={this.state.country}
+                onValueChange={(itemValue,itemIndex) => this.setState({country:itemValue})}
+                mode={'dialog'}
+                prompt={'country'}
+              >
+                <Picker.Item label={label_countries[0]} value={countries[0]} />
+                <Picker.Item label={label_countries[1]} value={countries[1]} />
+                <Picker.Item label={label_countries[2]} value={countries[2]} />
+              </Picker>
+            ):(
+              null
+            )}
+          </View>
+      </View>
