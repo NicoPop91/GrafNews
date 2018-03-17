@@ -98,6 +98,7 @@ export default class News extends Component {
             <Icon
               name="message"
               onPress={() => navigation.navigate('WriteArticle')}
+              color="#007AFF"
             />
         ),
     }
@@ -116,11 +117,15 @@ export default class News extends Component {
   }
 
   makeRemoteRequest = () => {
+   var date = new Date;
+   var query = '{articles(date:"'+date.toISOString()+'"){id author title description url urlToImage category language country publishedAt}}';
+   console.log(query);
+
     const fetch = createApolloFetch({
       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
     });
     fetch({
-      query: '{articles {id author title description url urlToImage category language country publishedAt}}',
+      query: query,
     })
     .then(res => {
       this.setState({
@@ -129,7 +134,7 @@ export default class News extends Component {
         refreshing: false
       });
     }).then(res => {
-      console.log(this.state.data);
+      //console.log(this.state.data);
     })
     .catch(error => {
       this.setState({ error, loading: false });
@@ -300,7 +305,7 @@ export default class News extends Component {
                           </Text>
                         </View>
                         <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                          <Text note>{item.source || item.author || 'No publisher available'}</Text>
+                          <Text note>{item.source || item.publishedAt || 'No time available'}</Text>
                         </View>
                       </View>
                     </View>
