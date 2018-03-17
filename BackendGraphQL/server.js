@@ -11,10 +11,10 @@ const newsapi = new NewsAPI('188776de06144080885d5b3f324f05e7')
 const app = express();
 
 
-const MONGO_URI = 'mongodb://localhost:27017/NewsDB';
+const MONGO_URI = 'mongodb://192.168.99.100:32778/MyDatabase';
 // const MONGO_URI = 'http://9p7wpw3ppo75fifx.myfritz.net:4000/playground';
 if (!MONGO_URI) {
-  throw new Error('You must provide a MongoLab URI');
+    throw new Error('You must provide a MongoLab URI');
 }
 
 
@@ -28,12 +28,12 @@ mongoose.connection
 //sagt express, dass bei jedem request an /graphql GraphQL benutzt werden soll
 app.use(bodyParser.json());
 app.use('/graphql', expressGraphQL({
-  schema,
-  graphiql: true
+    schema,
+    graphiql: true
 }));
 
 app.listen(4000, () => {
-  console.log('Listening');
+    console.log('Listening');
 });
 
 // News von der API pullen
@@ -42,45 +42,59 @@ app.listen(4000, () => {
 // Article = Mongoose Model
 // news = individueller Artikel aus dem Result
 
+const categories = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'];
+const countries = ['de', 'us', 'gb'];
+const languages = ['de', 'en']
 setInterval(() => {
-    newsapi.v2.topHeadlines({
-        category: 'general',
-        language: 'de',
-        country: 'de',
-    }).then((response) => {
-    //    console.log(response);
-        return response.articles;
-    }).then((articles) => {
-        articles.forEach((news) => {
-      //    console.log(news.title);
-            Article.find({
-                    title: news.title
-                })
-                .then((result) => {
-                    console.log(result.length + " hallo");
-                    if (result.length == 0) {
-                        new Article({
-                            title: news.title,
-                            description: news.description,
-                            url: news.url,
-                            urlToImage: news.urlToImage,
-                            publishedAt: new Date(news.publishedAt),
-                            category: 'general',
-                            country: 'de',
-                            language: 'de',
-                        }).save();
-                    }
-                });
+    categories.forEach((category) => {
+        languages.forEach((language) => {
+            countries.forEach((country) => {
+                
+                
+                if (!((country === 'de' && language === 'en') || (country === 'us' && language === 'de') || (country === 'gb' && language === 'de'))) {
+                    newsapi.v2.topHeadlines({
+                        category: category,
+                        language: language,
+                        country: country,
+                    }).then((response) => {
+                        //    console.log(response);
+                        return response.articles;
+                    }).then((articles) => {
+                        articles.forEach((news) => {
+                            //    console.log(news.title);
+                            Article.find({
+                                    title: news.title
+                                })
+                                .then((result) => {
+                                    //console.log(result.length + " hallo");
+                                    if (result.length == 0) {
+                                        new Article({
+                                            title: news.title,
+                                            description: news.description,
+                                            url: news.url,
+                                            urlToImage: news.urlToImage,
+                                            publishedAt: new Date(news.publishedAt),
+                                            category: category,
+                                            country: country,
+                                            language: language,
+                                        }).save();
+                                    }
+                                });
+                        });
+                    });
+                    
+                }
+                
+                
+            });
         });
     });
-}, 900);
-
-
+}, 900000);
 // suche ist Array mit komplettem Newsartikel
 // Tatverdächtiger schweigt bei Haftrichter
-Article.find({title: 'Tatverdächtiger schweigt bei Haftrichter'})
+/*Article.find({title: 'Tatverdächtiger schweigt bei Haftrichter'})
 .then((suche) => {
   if( suche.length == 0){
     console.log("Gleich!")
   }
-  console.log(suche.length) });
+  console.log(suche.length) });*/

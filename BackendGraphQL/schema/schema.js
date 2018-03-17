@@ -5,7 +5,7 @@ const axios = require('axios'); // Promise based HTTP client for the browser and
 const mutations = require('./mutations');
 const ArticleType = require('./article_type');
 const Article = mongoose.model('article');
-const { GraphQLDateTime } =  'graphql-iso-date';
+const { GraphQLDateTime } =  require('graphql-iso-date');
 const {
   GraphQLObjectType,
   GraphQLString,
@@ -21,8 +21,23 @@ const RootQuery = new GraphQLObjectType({
   fields: () => ({
     articles: {
       type: new GraphQLList(ArticleType),
-      resolve() {
-        return Article.find({});
+      args: {
+          date: {
+            type: GraphQLDateTime,  
+          },
+      },
+      resolve(parentValue,args) {
+        if(args.date){
+            /*Article.find({
+                "publishedAt": {"$lte": {"$date": new Date(args.date)}}
+                 }).limit(50).then((result)=>{console.log(result)});*/
+            return Article.where('publishedAt').gte(args.date).limit(50).sort('publishedAt');
+        }
+        //return Article.find({});
+        let d = new Date();
+        d.setHours(d.getHours()-2);
+        //console.log(d);
+        return Article.where('publishedAt').gte(d).limit(50).sort('publishedAt');
       }
     },
     article: {
