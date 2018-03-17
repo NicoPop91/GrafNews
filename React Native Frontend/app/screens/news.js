@@ -71,8 +71,6 @@ export default class News extends Component {
       devicetype: Device.isPhone ? "phone" : "tablet",
       refreshing: false,
       loading: false,
-      page: 1,
-      seed: 1,
       error: null,
       latitude: null,
       longitude: null,
@@ -101,10 +99,7 @@ export default class News extends Component {
               name="message"
               onPress={() => navigation.navigate('WriteArticle')}
             />
-        ), 
-        style: {
-            marginTop: Platform.OS === 'android' ? 24 : 0 
-        },
+        ),
     }
   };
 
@@ -125,11 +120,11 @@ export default class News extends Component {
       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
     });
     fetch({
-      query: '{getAllArticles {_id source {id} author title description url urlToImage publishedAt}}',
+      query: '{articles {id author title description url urlToImage category language country publishedAt}}',
     })
     .then(res => {
       this.setState({
-        data: res.data.getAllArticles,
+        data: res.data.articles,
         loading: false,
         refreshing: false
       });
@@ -222,31 +217,36 @@ export default class News extends Component {
             numColumns={1}
             renderItem={({ item }) => (
               <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
-                <Card style={{}}>
-                  <CardItem>
-                    <Left>
-                      <Thumbnail 
-                        source={{ uri: item.urlToImage || testImage }}
-                      />
-                      <Body>
-                        <Text>
-                          {item.title || 'No title available'}
-                        </Text>
-                        <Text note>{item.source || item.author || 'No publisher available'}</Text>
-                      </Body>
-                    </Left>
-                  </CardItem>
-                  <CardItem cardBody>
-                    <Image
-                      source={{ uri: item.urlToImage || testImage }}
-                      style={{ height: 150, width: null, flex: 1 }}
-                    />
-                  </CardItem>
-                </Card>
+                <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
+                  <Image
+                    source={{ uri: item.urlToImage || testImage }}
+                    style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
+                  />
+                  <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
+                    <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
+                      <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
+                      <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
+                        <Thumbnail source={{ uri: item.urlToImage || testImage }} />
+                        <View style={{flexDirection:'row', flex:1, justifyContent:'flex-start', paddingLeft:10}}>
+                          <View style={{flexDirection:'column', justifyContent:'space-between'}}>
+                            <View style={{}}>
+                              <Text style={{color:'white'}}>
+                                {item.title || 'No title available'}
+                              </Text>
+                            </View>
+                            <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                              <Text note>{item.source || item.author || 'No publisher available'}</Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                </View>
               </TouchableWithoutFeedback>
             )}
             horizontal={true}
-            keyExtractor={item => item._id}
+            keyExtractor={item => item.id}
             //ItemSeparatorComponent={this.renderSeparator}
             ListFooterComponent={this.renderFooter}
             onEndReached={this.handleLoadMore}
@@ -282,14 +282,14 @@ export default class News extends Component {
         numColumns={columns}
         renderItem={({ item }) => (
           <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
-            <View style={{flex:1, margin:3, borderRadius:20, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
+            <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
               <Image
                 source={{ uri: item.urlToImage || testImage }}
-                style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:20}}
+                style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
               />
               <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
                 <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
-                  <View style={{opacity: 0.3, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:20, borderBottomRightRadius:20}}/>
+                  <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
                   <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
                     <Thumbnail source={{ uri: item.urlToImage || testImage }} />
                     <View style={{flexDirection:'row', flex:1, justifyContent:'flex-start', paddingLeft:10}}>
@@ -310,7 +310,7 @@ export default class News extends Component {
             </View>
           </TouchableWithoutFeedback>
         )}
-        keyExtractor={item => item._id}
+        keyExtractor={item => item.id}
         //ItemSeparatorComponent={this.renderSeparator}
         ListHeaderComponent={
           this.state.orientation === 'portrait' ? (
@@ -373,9 +373,10 @@ export default class News extends Component {
 
   openArticle = item => {
     this.setState({ currentArticle: item.url })
-    this.forceUpdate();
+    console.log('Status: ' + this.state.orientation);
     if(this.state.orientation === 'portrait'){
-      this.props.navigation.navigate('ArticleDetail', item.url);
+      console.log(item.url)
+      this.props.navigation.navigate('Details', item);
     }
   };
 

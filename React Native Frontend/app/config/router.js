@@ -2,15 +2,18 @@ import React from 'react';
 import { TabNavigator, StackNavigator, TabBarBottom, TabBarTop  } from 'react-navigation';
 import { Icon } from 'react-native-elements';
 import { Platform, Button } from 'react-native';
+import { Orientation } from './orientation';
+const Device = require("react-native-device-detection");
 
 import News from '../screens/news';
 import Settings from '../screens/settings';
 import About from '../screens/about';
 import ArticleDetail from '../screens/articleDetail';
 import WriteArticle from '../screens/writeArticle';
+import ViewPhotos from '../screens/viewPhotos';
 
 export const NewsStack = StackNavigator({
-  News: {
+    News: {
       screen: News,
       navigationOptions: {
         title: 'News',
@@ -30,9 +33,12 @@ export const NewsStack = StackNavigator({
         headerStyle: {paddingHorizontal: 10}
       }
     },
+    ViewPhotos: {
+      screen: ViewPhotos,
+      navigationOptions: {
+        title: 'Select Photo'
+      }
   },
-  {
-    headerMode: Platform.OS === 'ios' ? null : 'none',
   }
 );
 
@@ -44,9 +50,6 @@ export const SettingsStack = StackNavigator({
       },
     },
   },
-  {
-    headerMode: Platform.OS === 'ios' ? null : 'none',
-  }
 );
 
 export const AboutStack = StackNavigator({
@@ -57,9 +60,6 @@ export const AboutStack = StackNavigator({
       },
     },
   },
-  {
-    headerMode: Platform.OS === 'ios' ? null : 'none',
-  }
 );
 
 export const Tabs = TabNavigator({
@@ -86,11 +86,8 @@ export const Tabs = TabNavigator({
     },
   },
   {
-    tabBarComponent: Platform.OS === 'ios' ? TabBarBottom : TabBarTop,
-    tabBarPosition: Platform.OS === 'ios' ? 'bottom' : 'top',
-    tabBarOptions: {
-      style: {paddingTop: Platform.OS === 'ios' ? 0 : 25}
-    },
+    tabBarComponent: TabBarBottom,
+    tabBarPosition: 'bottom',
     animationEnabled: true,
     swipeEnabled: false,
     allowFontScaling: true
