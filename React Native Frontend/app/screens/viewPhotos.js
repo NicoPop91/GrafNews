@@ -8,7 +8,7 @@ import {
   TouchableHighlight
 } from 'react-native';
 
-import SelectedPhoto from './selectedPhoto';
+import SelectedPhoto from '../components/selectedPhoto';
 
 class ViewPhotos extends Component {
   state = {
@@ -33,6 +33,7 @@ class ViewPhotos extends Component {
 
   render() {
     const { showSelectedPhoto, uri } = this.state;
+    const {photos} = this.props.navigation.state.params;
 
     if (showSelectedPhoto) {
       return (
@@ -47,7 +48,7 @@ class ViewPhotos extends Component {
         </View>
         <ListView
           contentContainerStyle={styles.list}
-          dataSource={this.state.ds.cloneWithRows(this.props.photoArray)}
+          dataSource={this.state.ds.cloneWithRows(photos)}
           renderRow={(rowData) => this.renderRow(rowData)}
           enableEmptySections={true} />
       </View>
