@@ -223,15 +223,30 @@ export default class News extends Component {
             renderItem={({ item }) => (
               <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
                 <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
-                  <Image
-                    source={{ uri: item.urlToImage || testImage }}
-                    style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
-                  />
+                  {
+                    item.urlToImage === "null" || item.urlToImage === "" ? (
+                      <Image
+                        source={{ uri: testImage }}
+                        style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
+                      />
+                    ) : (
+                      <Image
+                        source={{ uri: item.urlToImage }}
+                        style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
+                      />
+                    )
+                  }
                   <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
                     <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
                       <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
                       <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
-                        <Thumbnail source={{ uri: item.urlToImage || testImage }} />
+                        {
+                          item.urlToImage === "null" || item.urlToImage === "" ? (
+                            <Thumbnail source={{ uri: testImage }} />
+                          ) : (
+                            <Thumbnail source={{ uri: item.urlToImage }} />
+                          )
+                        }
                         <View style={{flexDirection:'row', flex:1, justifyContent:'flex-start', paddingLeft:10}}>
                           <View style={{flexDirection:'column', justifyContent:'space-between'}}>
                             <View style={{}}>
@@ -288,15 +303,30 @@ export default class News extends Component {
         renderItem={({ item }) => (
           <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
             <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
-              <Image
-                source={{ uri: item.urlToImage || testImage }}
-                style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
-              />
+              {
+                item.urlToImage === "null" || item.urlToImage === "" ? (
+                  <Image
+                    source={{ uri: testImage }}
+                    style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
+                  />
+                ) : (
+                  <Image
+                    source={{ uri: item.urlToImage }}
+                    style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
+                  />
+                )
+              }
               <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
                 <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
                   <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
                   <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
-                    <Thumbnail source={{ uri: item.urlToImage || testImage }} />
+                    {
+                      item.urlToImage === "null" || item.urlToImage === "" ? (
+                        <Thumbnail source={{ uri: testImage }} />
+                      ) : (
+                        <Thumbnail source={{ uri: item.urlToImage }} />
+                      )
+                    }
                     <View style={{flexDirection:'row', flex:1, justifyContent:'flex-start', paddingLeft:10}}>
                       <View style={{flexDirection:'column', justifyContent:'space-between'}}>
                         <View style={{}}>
