@@ -75,7 +75,7 @@ export default class About extends Component {
             </View>
             <View style={{flexDirection:'row'}}>
               <Text style={{fontSize:20, color:'#808080'}}>
-                Vice-Lead UI Designer oder so
+                Lead Backend Designer
               </Text>
             </View>
           </View>
@@ -99,7 +99,7 @@ export default class About extends Component {
             </View>
             <View style={{flexDirection:'row'}}>
               <Text style={{fontSize:20, color:'#808080'}}>
-                Vice-Lead UI Designer oder so
+              Lead Backend Designer
               </Text>
             </View>
           </View>
