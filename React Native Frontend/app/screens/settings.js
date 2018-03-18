@@ -168,7 +168,7 @@ export default class Settings extends Component {
                       onClick={ function() {
                         item.subscribed = !item.subscribed;
                         console.log(categories);
-                        this._refreshStorageData(categories);
+                        //this._refreshStorageData(categories);
                       }}
                       isChecked={item.subscribed}
                       leftText={item.cat}
