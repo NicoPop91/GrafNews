@@ -23,7 +23,7 @@ const RootQuery = new GraphQLObjectType({
       type: new GraphQLList(ArticleType),
       args: {
           date: {
-            type: GraphQLDateTime,
+            type: GraphQLDateTime,  
           },
       },
       resolve(parentValue,args) {
