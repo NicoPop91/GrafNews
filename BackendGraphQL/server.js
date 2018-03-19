@@ -11,7 +11,8 @@ const newsapi = new NewsAPI('188776de06144080885d5b3f324f05e7')
 const app = express();
 
 
-const MONGO_URI = 'mongodb://localhost:27017/NewsDB';
+const MONGO_URI = 'http://g4qr3mtniplvry1i.myfritz.net:27017/NewsDB';
+//const MONGO_URI = 'mongodb://localhost:27017/NewsDB';
 // const MONGO_URI = 'http://9p7wpw3ppo75fifx.myfritz.net:4000/playground';
 if (!MONGO_URI) {
   throw new Error('You must provide a MongoLab URI');
@@ -73,14 +74,16 @@ setInterval(() => {
                 });
         });
     });
-}, 900);
+}, 9000);
 
 
 // suche ist Array mit komplettem Newsartikel
 // Tatverdächtiger schweigt bei Haftrichter
+/*
 Article.find({title: 'Tatverdächtiger schweigt bei Haftrichter'})
 .then((suche) => {
   if( suche.length == 0){
     console.log("Gleich!")
   }
   console.log(suche.length) });
+*/

@@ -1,14 +1,13 @@
 const mongoose = require('mongoose');
 const graphql = require('graphql');
 const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList } = graphql;
-const { GraphQLDateTime } =  'graphql-iso-date';
+const { GraphQLDateTime } =  require('graphql-iso-date');
 
 
 const ArticleType = new GraphQLObjectType({
   name: 'Article',
   fields: () => ({
     id: { type: GraphQLID },
-    name: { type: GraphQLString },
     title: { type: GraphQLString },
     description: { type: GraphQLString },
     url: { type: GraphQLString },
@@ -16,7 +15,7 @@ const ArticleType = new GraphQLObjectType({
     category: { type: GraphQLString },
     language: { type: GraphQLString },
     country: { type: GraphQLString },
-    publishedAt: { type: GraphQLString }
+    publishedAt: { type: GraphQLDateTime }
   })
 });
 

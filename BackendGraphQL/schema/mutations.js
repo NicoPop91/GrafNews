@@ -1,6 +1,6 @@
 const graphql = require('graphql');
-const { GraphQLObjectType, GraphQLString, GraphQLID } = graphql;
-const { GraphQLDateTime } =  'graphql-iso-date';
+const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLNonNull } = graphql;
+const { GraphQLDateTime } =  require('graphql-iso-date');
 const mongoose = require('mongoose');
 const Article = mongoose.model('article');
 const ArticleType = require('./article_type');
@@ -12,11 +12,17 @@ const mutation = new GraphQLObjectType({
     addArticle: {
       type: ArticleType,
       args: {
-        title: { type: GraphQLString },
-        description: { type: GraphQLString }
+        title: { type: new GraphQLNonNull(GraphQLString) },
+        description: { type: GraphQLString },
+        url: { type: GraphQLString },
+        urlToImage: { type: GraphQLString },
+        category: { type: GraphQLString },
+        language: { type: GraphQLString },
+        country: { type: GraphQLString },
+        publishedAt: { type: GraphQLDateTime }
       },
-      resolve(parentValue, { title }) {
-        return (new Article({ title })).save()
+      resolve(parentValue, args) {
+        return (new Article(args)).save()
       }
     },
     deleteArticle: {
