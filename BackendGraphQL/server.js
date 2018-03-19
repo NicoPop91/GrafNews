@@ -10,13 +10,9 @@ const newsapi = new NewsAPI('188776de06144080885d5b3f324f05e7');
 
 const app = express();
 
-
-<<<<<<< HEAD
 const MONGO_URI = 'http://g4qr3mtniplvry1i.myfritz.net:27017/NewsDB';
 //const MONGO_URI = 'mongodb://localhost:27017/NewsDB';
-=======
-const MONGO_URI = 'mongodb://192.168.99.100:32768/MyDatabase'; 
->>>>>>> c82b1bda91582f44c6a787ccc4ecc78ca2776ab0
+// const MONGO_URI = 'mongodb://192.168.99.100:32768/MyDatabase';
 // const MONGO_URI = 'http://9p7wpw3ppo75fifx.myfritz.net:4000/playground';
 if (!MONGO_URI) {
     throw new Error('You must provide a MongoLab URI');
@@ -54,8 +50,6 @@ setInterval(() => {
     categories.forEach((category) => {
         languages.forEach((language) => {
             countries.forEach((country) => {
-                
-                
                 if (!((country === 'de' && language === 'en') || (country === 'us' && language === 'de') || (country === 'gb' && language === 'de'))) {
                     newsapi.v2.topHeadlines({
                         category: category,
@@ -88,14 +82,11 @@ setInterval(() => {
                                 });
                         });
                     });
-                    
+
                 }
-                
-                
             });
         });
     });
-<<<<<<< HEAD
 }, 9000);
 
 
@@ -103,20 +94,15 @@ setInterval(() => {
 // Tatverdächtiger schweigt bei Haftrichter
 /*
 Article.find({title: 'Tatverdächtiger schweigt bei Haftrichter'})
-=======
 }, 1560000);
 
 // suche ist Array mit komplettem Newsartikel
 // Tatverdächtiger schweigt bei Haftrichter
 /*Article.find({title: 'Tatverdächtiger schweigt bei Haftrichter'})
->>>>>>> c82b1bda91582f44c6a787ccc4ecc78ca2776ab0
 .then((suche) => {
   if( suche.length == 0){
     console.log("Gleich!")
   }
-<<<<<<< HEAD
+
   console.log(suche.length) });
 */
-=======
-  console.log(suche.length) });*/
->>>>>>> c82b1bda91582f44c6a787ccc4ecc78ca2776ab0
