@@ -8,6 +8,10 @@ const ArticleType = new GraphQLObjectType({
   name: 'Article',
   fields: () => ({
     id: { type: GraphQLID },
+<<<<<<< HEAD
+=======
+    author: { type: GraphQLString },
+>>>>>>> c82b1bda91582f44c6a787ccc4ecc78ca2776ab0
     title: { type: GraphQLString },
     description: { type: GraphQLString },
     url: { type: GraphQLString },
