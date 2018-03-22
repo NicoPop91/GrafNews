@@ -10,31 +10,86 @@ import {
   Platform,
   CameraRoll,
   TouchableHighlight,
-  Image
+  Image,
+  Picker,
+  ScrollView
 } from "react-native";
 import { Divider, Icon, Button } from "react-native-elements";
 import ViewPhotos from "./viewPhotos";
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import DatePicker from 'react-native-datepicker';
 const { createApolloFetch } = require('apollo-fetch');
+var moment = require('moment');
+import t from 'tcomb-form-native';
+
+const Form = t.form.Form;
+
+var Category = t.enums({
+  general: 'General',
+  business: 'Business',
+  entertainment: 'Entertainment',
+  health: 'Health',
+  science: 'Science',
+  sports: 'Sports',
+  technology: 'Technology'
+});
+
+var Language = t.enums({
+  de: 'German',
+  en: 'English'
+});
+
+var Country = t.enums({
+  de: 'Germany',
+  us: 'United States',
+  gb: 'Great Britain'
+});
+
+Form.stylesheet.dateValue.normal.borderColor = '#d0d2d3';
+Form.stylesheet.dateValue.normal.borderRadius = 3;
+Form.stylesheet.dateValue.normal.borderWidth = 1;
+
+var Article = t.struct({
+  title: t.String,
+  text: t.String,
+  author: t.String,
+  date: t.Date,
+  category: Category,
+  language: t.maybe(Language),
+  country: t.maybe(Country),
+  url: t.maybe(t.String),
+  urlToImage: t.maybe(t.String)
+});
+
+const categories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology'];
+const countries = ['de', 'us', 'gb'];
+const languages = ['de', 'en'];
+const label_categories = ['General', 'Business', 'Entertainment', 'Health', 'Science', 'Sports', 'Technology'];
+const label_countries = ['Germany', 'United States', 'Great Britain'];
+const label_languages = ['German', 'English'];
+
+const options = {
+  fields: {
+    title: {
+      error: 'Please provide a title'
+    },
+    text: {
+      error: 'Please provide a text'
+    },
+    author: {
+      error: 'Please provide your name',
+    },
+  },
+};
 
 export default class WriteArticle extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: null,
-      text: null,
-      image: null,
-      showPhotoGallery: false,
-      photoArray: [],
-      author: null,
-      url: null,
-      language: null,
-      category: null,
-      country: null,
-      date: null,
-      photos: null
+      value:null
     };
+    this.onPress = this.onPress.bind(this);
   }
 
   static navigationOptions = ({ navigation }) => {
@@ -45,8 +100,8 @@ export default class WriteArticle extends Component {
           name="send"
           onPress={() => {
             this.sumbit;
-            console.log("xxx");
           }}
+          color="#007AFF"
         />
       ),
       style: {
@@ -55,83 +110,74 @@ export default class WriteArticle extends Component {
     };
   };
 
-  sumbit = () => {
-    console.log("Trying to submit " + this.state.author + "; " + this.state.title + "; " + this.state.text + "; " + this.state.url + "; " + this.state.image + "; " + this.state.category + "; " + this.state.language + "; " + this.state.country + "; " + this.state.date );
+  sumbit = (value) => {
+    /*if(this.state.text !== null){
+      var text = this.state.text.replace(/\n/g, " ");
+    }
+    var v1 = this.state.date;
+    var v2 = v1.split(' ');
+    var v3 = v2[1].split(':');
+    var date = null;
+    if(v2[2] == 'pm'){
+      var hour = parseInt(v3[0])
+      hour = hour+12;
+      date = v2[0]+"T"+hour+":"+v3[1]+":"+v3[2]+".000Z";
+    } else {
+      date = v2[0]+"T"+hour+":"+v3[1]+":"+v3[2]+".000Z";
+    }*/
+    console.log("Trying to submit " + value.author + "; " + value.title + "; " + value.text + "; " + value.url + "; " + value.urlToImage + "; " + value.category + "; " + value.language + "; " + value.country + "; " + value.date.toISOString() );
     const fetch = createApolloFetch({
       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
     });
     fetch({
-      query: 'mutation {addArticle(author: ${this.state.author || undefined} title: ${this.state.title || undefined} description: ${this.state.text || undefined} url: ${this.state.url || undefined} urlToImage: ${this.state.image || undefined} category: ${this.state.category || undefined} language: ${this.state.language || undefined} country: ${this.state.country || undefined} publishedAt: ${this.state.date || undefined}) { id }}'
+      query: 'mutation {addArticle(author:"' + value.author + '" title:"' + value.title + '" description:"' + value.text +  '" url:"' + value.url + '" urlToImage:"' + value.urlToImage + '" category:"' + value.category + '" language:"' + value.language + '" country:"' + value.country + '" publishedAt:"' + value.date.toISOString() + '") { id }}'
     })
     .then(respnse => {
-      console.log('Article was generated with id ' + respnse.data.addArticle.id)
+      console.log('Article was generated with id ', respnse.data)
+      console.log('Error ', respnse.errors)
     })
     .catch(error => {
       console.log('Error while submitting article: ' + error);
     });
   };
 
-  getPhotosFromGallery() {
-    CameraRoll.getPhotos({ first: 1000000 })
-      .then(res => {
-        let photoArray = res.edges;
-        this.setState({ showPhotoGallery: true, photoArray: photoArray })
-      })
+  getInitialState() {
+    return { value: null };
   }
+
+  onChange(value) {
+    this.setState({ value });
+  };
+
+  clearForm() {
+    this.setState({ value: null });
+  };
+
+  onPress() {
+    var value = this.refs.form.getValue();
+    if (value) {
+      console.log(value);
+      this.sumbit(value);
+      this.clearForm();
+    }
+  };
 
   render() {
     return (
-      <View style={{ padding: 20 }}>
-        <TextInput
-          style={{ borderColor: "gray", borderWidth: 0, fontSize: 24 }}
-          onChangeText={title => this.setState({ title })}
-          value={this.state.title}
-          placeholderTextColor={"grey"}
-          allowFontScaling={true}
-          autoFocus={true}
-          placeholder={"Title ..."}
-          maxHeight={400}
-          multiline={false}
-        />
-        <Divider style={{ height: 20, backgroundColor: "transparent" }} />
-        <TextInput
-          style={{ borderColor: "gray", borderWidth: 0 }}
-          onChangeText={text => this.setState({ text })}
-          value={this.state.text}
-          placeholderTextColor={"grey"}
-          allowFontScaling={true}
-          placeholder={"Your text starts here ..."}
-          maxHeight={400}
-          multiline={true}
-        />
-        <Divider style={{ height: 20, backgroundColor: "transparent" }} />
-        <TextInput
-          style={{ borderColor: "gray", borderWidth: 0}}
-          onChangeText={author => this.setState({ author })}
-          value={this.state.author}
-          placeholderTextColor={"grey"}
-          allowFontScaling={true}
-          placeholder={"Author ..."}
-          maxHeight={400}
-          multiline={false}
-        />
-        <Divider style={{ height: 20, backgroundColor: "transparent" }} />
-        <TextInput
-          style={{ borderColor: "gray", borderWidth: 0}}
-          onChangeText={image => this.setState({ image })}
-          value={this.state.image}
-          placeholderTextColor={"grey"}
-          allowFontScaling={true}
-          placeholder={"URL to image ..."}
-          maxHeight={400}
-          multiline={false}
-        />
-        <Divider style={{ height: 20, backgroundColor: "transparent" }} />
-        <Button
-          title={"Submit"}
-          onPress={() => {this.sumbit()}}
-        />
-      </View>
+      <View style={styles.container2}>
+        <ScrollView>
+          <Form 
+            ref="form"
+            type={Article}
+            options={options}
+            value={this.state.value}
+            onChange={this.onChange.bind(this)}
+          />
+          <TouchableHighlight style={styles.button} onPress={this.onPress} underlayColor='#99d9f4'>
+            <Text style={styles.buttonText}>Submit</Text>
+          </TouchableHighlight>
+        </ScrollView>
+      </View>   
     );
   }
 }
@@ -141,5 +187,30 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  container2: {
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#ffffff',
+  },
+  title: {
+    fontSize: 30,
+    alignSelf: 'center',
+    marginBottom: 30
+  },
+  buttonText: {
+    fontSize: 18,
+    color: 'white',
+    alignSelf: 'center'
+  },
+  button: {
+    height: 36,
+    backgroundColor: '#48BBEC',
+    borderColor: '#48BBEC',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 10,
+    alignSelf: 'stretch',
+    justifyContent: 'center'
   }
 });

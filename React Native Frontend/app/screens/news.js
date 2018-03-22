@@ -98,6 +98,7 @@ export default class News extends Component {
             <Icon
               name="message"
               onPress={() => navigation.navigate('WriteArticle')}
+              color="#007AFF"
             />
         ),
     }
@@ -116,11 +117,15 @@ export default class News extends Component {
   }
 
   makeRemoteRequest = () => {
+   var date = new Date;
+   var query = '{articles(date:"'+date.toISOString()+'"){id author title description url urlToImage category language country publishedAt}}';
+   console.log(query);
+
     const fetch = createApolloFetch({
       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
     });
     fetch({
-      query: '{articles {id author title description url urlToImage category language country publishedAt}}',
+      query: query,
     })
     .then(res => {
       this.setState({
@@ -129,7 +134,7 @@ export default class News extends Component {
         refreshing: false
       });
     }).then(res => {
-      console.log(this.state.data);
+      //console.log(this.state.data);
     })
     .catch(error => {
       this.setState({ error, loading: false });
@@ -218,15 +223,30 @@ export default class News extends Component {
             renderItem={({ item }) => (
               <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
                 <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
-                  <Image
-                    source={{ uri: item.urlToImage || testImage }}
-                    style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
-                  />
+                  {
+                    item.urlToImage === "null" || item.urlToImage === "" ? (
+                      <Image
+                        source={{ uri: testImage }}
+                        style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
+                      />
+                    ) : (
+                      <Image
+                        source={{ uri: item.urlToImage }}
+                        style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
+                      />
+                    )
+                  }
                   <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
                     <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
                       <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
                       <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
-                        <Thumbnail source={{ uri: item.urlToImage || testImage }} />
+                        {
+                          item.urlToImage === "null" || item.urlToImage === "" ? (
+                            <Thumbnail source={{ uri: testImage }} />
+                          ) : (
+                            <Thumbnail source={{ uri: item.urlToImage }} />
+                          )
+                        }
                         <View style={{flexDirection:'row', flex:1, justifyContent:'flex-start', paddingLeft:10}}>
                           <View style={{flexDirection:'column', justifyContent:'space-between'}}>
                             <View style={{}}>
@@ -283,15 +303,30 @@ export default class News extends Component {
         renderItem={({ item }) => (
           <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
             <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
-              <Image
-                source={{ uri: item.urlToImage || testImage }}
-                style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
-              />
+              {
+                item.urlToImage === "null" || item.urlToImage === "" ? (
+                  <Image
+                    source={{ uri: testImage }}
+                    style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
+                  />
+                ) : (
+                  <Image
+                    source={{ uri: item.urlToImage }}
+                    style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
+                  />
+                )
+              }
               <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
                 <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
                   <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
                   <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
-                    <Thumbnail source={{ uri: item.urlToImage || testImage }} />
+                    {
+                      item.urlToImage === "null" || item.urlToImage === "" ? (
+                        <Thumbnail source={{ uri: testImage }} />
+                      ) : (
+                        <Thumbnail source={{ uri: item.urlToImage }} />
+                      )
+                    }
                     <View style={{flexDirection:'row', flex:1, justifyContent:'flex-start', paddingLeft:10}}>
                       <View style={{flexDirection:'column', justifyContent:'space-between'}}>
                         <View style={{}}>
@@ -300,7 +335,7 @@ export default class News extends Component {
                           </Text>
                         </View>
                         <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                          <Text note>{item.source || item.author || 'No publisher available'}</Text>
+                          <Text note>{item.source || item.publishedAt || 'No time available'}</Text>
                         </View>
                       </View>
                     </View>
