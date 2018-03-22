@@ -14,7 +14,9 @@ import {
   Linking,
   TouchableOpacity,
   ActivityIndicator,
-  Platform
+  Platform,
+  TouchableWithoutFeedback,
+  AsyncStorage
 } from "react-native";
 import {
   List,
@@ -36,6 +38,8 @@ import {
   isIphoneX
 } from "react-native-device-detection";
 import Geocoder from 'react-native-geocoder';
+import CheckBox from 'react-native-check-box'
+import SegmentedControlTab from 'react-native-segmented-control-tab'
 const Device = require("react-native-device-detection");
 const Orientation = require("../config/orientation.js");
 
@@ -54,7 +58,8 @@ export default class Settings extends Component {
       latitude: null,
       longitude: null,
       geolocation: null,
-      geoError: null
+      geoError: null,
+      selectedTab: 0
     };
 
     Dimensions.addEventListener("change", () => {
@@ -102,9 +107,89 @@ export default class Settings extends Component {
     .catch(err => console.log(err))
   }
 
+  handleIndexChange = (index) => {
+    this.setState({
+      ...this.state,
+      selectedTab: index,
+    });
+  }
+
+  _refreshStorageData = (data) => {
+    try {
+      AsyncStorage.setItem('subscriptions', data);
+    } catch (error) {
+      // Error saving data
+    }
+  }
+
   render() {
+    const categories = [
+      {"id": 1, "cat": "General", "subscribed": true},
+      {"id": 2, "cat": "Business", "subscribed": true},
+      {"id": 3, "cat": "Entertainment", "subscribed": true},
+      {"id": 4, "cat": "Health", "subscribed": false},
+      {"id": 5, "cat": "Science", "subscribed": false},
+      {"id": 6, "cat": "Sports", "subscribed": true},
+      {"id": 7, "cat": "Technology", "subscribed": true}
+      ];
     return (
       <View>
+      {
+          this.state.componentDidMount ? (
+            <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingLeft: 10, paddingTop: 20 }}>
+              News Categories
+            </Text>
+          ) : null
+        }
+        <SegmentedControlTab
+                values={['Subscriptions', 'Informations']}
+                selectedIndex={this.state.selectedTab}
+                onTabPress={this.handleIndexChange}
+                tabsContainerStyle={{padding:5}}
+              />
+              {this.state.selectedTab === 0 ? (
+        <List
+          containerStyle={{
+            borderTopWidth: 0,
+            borderBottomWidth: 0,
+            marginTop: 10,
+            backgroundColor: 'transparent'
+          }}
+        >
+          <FlatList
+            data={categories}
+            numColumns={1}
+            renderItem={({ item }) => (
+              <TouchableWithoutFeedback>
+                 <View style={{flex:1, marginLeft:25, marginRight:25, marginVertical:10, flexDirection: 'column', borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
+                    <View style={{flex:1, justifyContent: 'center', paddingLeft: 10}}>
+                    <CheckBox
+                      style={{flex: 1, padding: 10}}
+                      onClick={ function() {
+                        item.subscribed = !item.subscribed;
+                        console.log(categories);
+                        //this._refreshStorageData(categories);
+                      }}
+                      isChecked={item.subscribed}
+                      leftText={item.cat}
+                    />
+                    </View>
+                    <View
+                      style={{
+                      paddingVertical: 5,
+                      borderTopWidth: 1,
+                      borderColor: "#CED0CE"
+                    }}
+                    >
+                  </View>
+                 </View>
+              </TouchableWithoutFeedback>
+            )}
+            keyExtractor={item => item.id}
+          />
+        </List>
+              ) : (
+ <View>
         <View style={{ marginTop: 20, marginLeft: 20 }}>
           <Text style={{ paddingBottom: 10, fontWeight: "bold", fontSize: 26 }}>
             systeminfo
@@ -124,7 +209,12 @@ export default class Settings extends Component {
           <Text>latitude: {this.state.latitude}</Text>
           <Text>longitude: {this.state.longitude}</Text>
           <Text>address: {this.state.geolocation}</Text>
+
+
         </View>
+      </View>
+              )}
+
       </View>
     );
   }
