@@ -17,10 +17,11 @@ import {
 import { Divider, Icon, Button } from "react-native-elements";
 import ViewPhotos from "./viewPhotos";
 import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { gql } from 'graphql-tag';
 import DatePicker from 'react-native-datepicker';
 const { createApolloFetch } = require('apollo-fetch');
 var moment = require('moment');
+var validUrl = require('valid-url');
 import t from 'tcomb-form-native';
 
 const Form = t.form.Form;
@@ -55,10 +56,10 @@ var Article = t.struct({
   text: t.String,
   author: t.String,
   date: t.Date,
+  url: t.String,
   category: Category,
   language: t.maybe(Language),
   country: t.maybe(Country),
-  url: t.maybe(t.String),
   urlToImage: t.maybe(t.String)
 });
 
@@ -69,25 +70,40 @@ const label_categories = ['General', 'Business', 'Entertainment', 'Health', 'Sci
 const label_countries = ['Germany', 'United States', 'Great Britain'];
 const label_languages = ['German', 'English'];
 
+const stylesheet = _.cloneDeep(t.form.Form.stylesheet);
+stylesheet.textbox.normal.height = 150;
+
 const options = {
   fields: {
     title: {
       error: 'Please provide a title'
     },
     text: {
-      error: 'Please provide a text'
+      error: 'Please provide a text',
+      multiline: true,
+      stylesheet: stylesheet
     },
     author: {
       error: 'Please provide your name',
     },
+    url: {
+      error: 'Please provide the url to your article',
+    },
+    category: {
+      error: 'Please select on of the categories',
+    },
   },
 };
+
+let _this = null;
+const testImage= 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Test_card.png';
 
 export default class WriteArticle extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value:null
+      value:null,
+      image:testImage
     };
     this.onPress = this.onPress.bind(this);
   }
@@ -99,7 +115,7 @@ export default class WriteArticle extends Component {
         <Icon
           name="send"
           onPress={() => {
-            this.sumbit;
+            _this.onPress();
           }}
           color="#007AFF"
         />
@@ -109,6 +125,11 @@ export default class WriteArticle extends Component {
       }
     };
   };
+
+  componentDidMount() {
+    _this = this;
+    this.refs.form.getComponent('title').refs.input.focus();
+  }
 
   sumbit = (value) => {
     /*if(this.state.text !== null){
@@ -146,7 +167,17 @@ export default class WriteArticle extends Component {
   }
 
   onChange(value) {
-    this.setState({ value });
+   // this.setState({ value });
+    console.log(value);
+    if(validUrl.isWebUri(value.urlToImage)){
+      console.log('the image url was ok');
+      this.setState({ value });
+      this.setState({ image:value.urlToImage });
+    } else {
+      value.urlToImage = testImage;
+      console.log('the image url was not ok');
+      this.setState({ value });
+    }
   };
 
   clearForm() {
@@ -162,6 +193,22 @@ export default class WriteArticle extends Component {
     }
   };
 
+  /*drawImage() {
+    if(this.state.value !== null) {
+      if(validUrl.isUri(this.state.value.urlToImage)) {
+        return (<Image
+                source={{ uri: this.state.value.urlToImage }}
+                style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
+               />)
+      }
+    } else {
+      return (<Image
+              source={{ uri: testImage }}
+              style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
+            />)
+    }
+  };*/
+
   render() {
     return (
       <View style={styles.container2}>
@@ -173,9 +220,10 @@ export default class WriteArticle extends Component {
             value={this.state.value}
             onChange={this.onChange.bind(this)}
           />
-          <TouchableHighlight style={styles.button} onPress={this.onPress} underlayColor='#99d9f4'>
-            <Text style={styles.buttonText}>Submit</Text>
-          </TouchableHighlight>
+          <Image
+            source={{ uri: this.state.image }}
+            style={{ resizeMode: 'cover', height: 200, flex: 1, borderRadius:5}}
+          />
         </ScrollView>
       </View>   
     );

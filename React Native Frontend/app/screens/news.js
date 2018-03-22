@@ -224,7 +224,7 @@ export default class News extends Component {
               <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
                 <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
                   {
-                    item.urlToImage === "null" || item.urlToImage === "" ? (
+                    item.urlToImage === null || item.urlToImage === "" ? (
                       <Image
                         source={{ uri: testImage }}
                         style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
@@ -241,7 +241,7 @@ export default class News extends Component {
                       <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
                       <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
                         {
-                          item.urlToImage === "null" || item.urlToImage === "" ? (
+                          item.urlToImage === null || item.urlToImage === "" ? (
                             <Thumbnail source={{ uri: testImage }} />
                           ) : (
                             <Thumbnail source={{ uri: item.urlToImage }} />
@@ -304,7 +304,7 @@ export default class News extends Component {
           <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
             <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
               {
-                item.urlToImage === "null" || item.urlToImage === "" ? (
+                item.urlToImage === null || item.urlToImage === "" ? (
                   <Image
                     source={{ uri: testImage }}
                     style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
@@ -321,7 +321,7 @@ export default class News extends Component {
                   <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
                   <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
                     {
-                      item.urlToImage === "null" || item.urlToImage === "" ? (
+                      item.urlToImage === null || item.urlToImage === "" ? (
                         <Thumbnail source={{ uri: testImage }} />
                       ) : (
                         <Thumbnail source={{ uri: item.urlToImage }} />
