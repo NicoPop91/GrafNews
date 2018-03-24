@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const graphql = require('graphql');
-const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList } = graphql;
+const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList, GraphQLBoolean } = graphql;
 const { GraphQLDateTime } =  require('graphql-iso-date');
+const { PointObject } = require('graphql-geojson');
 
 
 const ArticleType = new GraphQLObjectType({
@@ -16,7 +17,9 @@ const ArticleType = new GraphQLObjectType({
     category: { type: GraphQLString },
     language: { type: GraphQLString },
     country: { type: GraphQLString },
-    publishedAt: { type: GraphQLDateTime }
+    publishedAt: { type: GraphQLDateTime },
+    publishedByUser: {type: GraphQLBoolean},
+    location: {type: PointObject}
   })
 });
 
