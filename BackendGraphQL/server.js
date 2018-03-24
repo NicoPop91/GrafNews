@@ -59,16 +59,13 @@ setInterval(() => {
                         language: language,
                         country: country,
                     }).then((response) => {
-                        //    console.log(response);
                         return response.articles;
                     }).then((articles) => {
                         articles.forEach((news) => {
-                            //    console.log(news.title);
                             Article.find({
                                     title: news.title
                                 })
                                 .then((result) => {
-                                    //console.log(result.length + " hallo");
                                     if (result.length == 0) {
                                         new Article({
                                             title: news.title,
@@ -100,12 +97,3 @@ setInterval(() => {
         });
     });
 },1560000 ); //1560000
-
-// suche ist Array mit komplettem Newsartikel
-// Tatverdächtiger schweigt bei Haftrichter
-/*Article.find({title: 'Tatverdächtiger schweigt bei Haftrichter'})
-.then((suche) => {
-  if( suche.length == 0){
-    console.log("Gleich!")
-  }
-  console.log(suche.length) });*/

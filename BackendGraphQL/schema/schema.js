@@ -40,47 +40,35 @@ const RootQuery = new GraphQLObjectType({
                 publishedByUser: {
                     type: GraphQLBoolean
                 },
+                category: {
+                    type: GraphQLString
+                },
+                country: {
+                    type: GraphQLString
+                },
+                language: {
+                    type: GraphQLString
+                }
             },
             resolve(parentValue, args) {
                 if (args.date) {
-                    if (args.lng && args.lat) {
-                        if (args.publishedByUser === true) {
-                            return Article.find({
-                                "location": {
-                                    "$near": {
-                                        "$geometry": {
-                                            "type": "Point",
-                                            "coordinates": [Number(args.lng), Number(args.lat)]
-                                        },
-                                        "$maxDistance": 20000,
-                                        "$minDistance": 0
-                                    }
-                                },
-                                "publishedAt": {
-                                    "$lte": new Date(args.date)
-                                },
-                                publishedByUser: true,
-                            }).sort('-publishedAt').limit(100);
-                        }
-                        if (args.publishedByUser === false) {
-                            return Article.find({
-                                "location": {
-                                    "$near": {
-                                        "$geometry": {
-                                            "type": "Point",
-                                            "coordinates": [Number(args.lng), Number(args.lat)]
-                                        },
-                                        "$maxDistance": 20000,
-                                        "$minDistance": 0
-                                    }
-                                },
-                                "publishedAt": {
-                                    "$lte": new Date(args.date)
-                                },
-                                publishedByUser: false,
-                            }).sort('-publishedAt').limit(100);
-                        }
-                        return Article.find({
+                    return Article.find({
+                        publishedAt: {
+                            $lte: new Date(args.date)
+                        },
+                        ...(args.publishedByUser!==undefined) && {
+                            publishedByUser: args.publishedByUser
+                        },
+                        ...(args.category) && {
+                            category: args.category
+                        },
+                        ...(args.language) && {
+                            language: args.language
+                        },
+                        ...(args.country) && {
+                            country: args.country
+                        },
+                        ...(args.lng&&args.lat) &&{
                             "location": {
                                 "$near": {
                                     "$geometry": {
@@ -90,37 +78,12 @@ const RootQuery = new GraphQLObjectType({
                                     "$maxDistance": 20000,
                                     "$minDistance": 0
                                 }
-                            },
-                            "publishedAt": {
-                                "$lte": new Date(args.date)
                             }
-                        }).sort('-publishedAt').limit(100);
-                    }
-                    if (args.publishedByUser === true) {
-                        return Article.find({
-                            publishedAt: {
-                                $lte: new Date(args.date)
-                            },
-                            publishedByUser: true,
-                        }).sort('-publishedAt').limit(100);
-                    }
-                    if (args.publishedByUser === false) {
-                        return Article.find({
-                            publishedAt: {
-                                $lte: new Date(args.date)
-                            },
-                            publishedByUser: false,
-                        }).sort('-publishedAt').limit(100);
-                    }
-                    /*Article.find({
-                        "publishedAt": {"$lte": {"$date": new Date(args.date)}}
-                         }).limit(50).then((result)=>{console.log(result)});*/
-                    return Article.where('publishedAt').lte(args.date).sort('-publishedAt').limit(100);
+                        }
+                    }).sort('-publishedAt').limit(100);
                 }
-                //return Article.find({});
                 let d = new Date();
                 d.setHours(d.getHours() - 2);
-                //console.log(d);
                 return Article.where('publishedAt').gte(d).sort('-publishedAt').limit(100);
             }
         },
@@ -137,13 +100,6 @@ const RootQuery = new GraphQLObjectType({
                 return Article.findById(id);
             }
         },
-        /*  newArticles: {
-            type: new GraphQLList(ArticleType),
-            args: { }
-            resolve() {
-              return Article.find({});
-            }
-          } */
     })
 });
 

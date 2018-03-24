@@ -39,8 +39,6 @@ const mutation = new GraphQLObjectType({
             country: args.country,
             publishedAt: args.publishedAt,
             publishedByUser: args.publishedByUser,
-            //lng: args.lng,
-            //lat: args.lat,
             location: {
                 type: args.geotype,
                 coordinates: [Number(args.lng),Number(args.lat)],
