@@ -1,0 +1,4 @@
+- integration weiterer Dienste (twitter, Bilder hochladen)
+- Eigene (fake-) News erstellen (Kamera, News direkt weiter Tweeten/posten...)
+- lokalere Lokalnews als nur Land (Google Maps?)
+- zusätzliche tags -> Graphql besser nutzen
