@@ -52,14 +52,15 @@ import {
   isIphoneX
 } from "react-native-device-detection";
 import SegmentedControlTab from 'react-native-segmented-control-tab'
-import { Font } from 'expo';
+import { Font, Notifications, Permissions } from 'expo';
+import DropdownAlert from 'react-native-dropdownalert';
 const Device = require("react-native-device-detection");
 const Orientation = require("../config/orientation.js");
 const { createApolloFetch } = require('apollo-fetch');
 
 //------------------------------------------------------------------------------
 
-const testImage= 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Test_card.png';
+const testImage = 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Test_card.png';
 
 export default class News extends Component {
   constructor(props) {
@@ -67,6 +68,8 @@ export default class News extends Component {
 
     this.state = {
       data: [],
+      localData: [],
+      otherData: [],
       orientation: Orientation.isPortrait() ? "portrait" : "landscape",
       devicetype: Device.isPhone ? "phone" : "tablet",
       refreshing: false,
@@ -78,7 +81,9 @@ export default class News extends Component {
       componentDidMount: false,
       currentArticle: null,
       selectedTab: 0,
-      sliderPosition: 0
+      sliderPosition: 0,
+      notification: {},
+      image: 'https://source.unsplash.com/random'
     };
 
     // Event Listener for orientation changes
@@ -105,41 +110,124 @@ export default class News extends Component {
   };
 
   async componentDidMount() {
-    this.getLocation;
-    this.makeRemoteRequest();
+    await this.getGeoLocation();
     await Font.loadAsync({
       'OldLondon': require('../../assets/fonts/OldLondon.ttf'),
     });
     await Font.loadAsync({
       'MoonGet': require('../../assets/fonts/moon_get-Heavy.ttf'),
     });
+    this.makeLocalRemoteRequest();
+    this.makeOtherRemoteRequest();
     this.setState({ componentDidMount: true });
   }
 
-  makeRemoteRequest = () => {
-   var date = new Date;
-   var query = '{articles(date:"'+date.toISOString()+'"){id author title description url urlToImage category language country publishedAt}}';
-   console.log(query);
+  componentWillMount() {
+    this.registerForPushNotificationsAsync();
+    this._notificationSubscription = Notifications.addListener(this._handleNotification);
+  }
 
+  _handleNotification = (notification) => {
+    this.setState({notification: notification});
+  };
+
+  async registerForPushNotificationsAsync() {
+    const { status: existingStatus } = await Permissions.getAsync(
+      Permissions.NOTIFICATIONS
+    );
+    let finalStatus = existingStatus;
+  
+    if (existingStatus !== 'granted') {
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      finalStatus = status;
+    }
+  
+    if (finalStatus !== 'granted') {
+      return;
+    }
+  
+    let token = await Notifications.getExpoPushTokenAsync();
+  
+    /*return fetch(PUSH_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token: {
+          value: token,
+        },
+        user: {
+          username: 'User',
+        },
+      }),
+    });*/
+
+    console.log("Trying to submit " + token );
     const fetch = createApolloFetch({
       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
     });
     fetch({
-      query: query,
+      query: 'mutation {push(token:"' + token + '") { status }}'
     })
-    .then(res => {
-      this.setState({
-        data: res.data.articles,
-        loading: false,
-        refreshing: false
-      });
-    }).then(res => {
-      //console.log(this.state.data);
+    .then(respnse => {
+      console.log('Status ' + respnse.data.push.status)
     })
     .catch(error => {
-      this.setState({ error, loading: false });
-    });
-  };
+      console.log('Error while submitting: ' + error);
+    });  
+  }
+
+   makeLocalRemoteRequest = () => {
+    var date = new Date;
+    var query = '{articles(date:"'+date.toISOString()+'", publishedByUser:true, lng:"'+ this.state.longitude +'", lat:"'+ this.state.latitude +'"){id author title description url urlToImage category language country publishedAt publishedByUser}}';
+    console.log("makeLocalRemoteRequest query:" + query);
+     const fetch = createApolloFetch({
+       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+     });
+     fetch({
+       query: query,
+     })
+     .then(res => {
+       this.setState({
+         localData: res.data.articles,
+         loading: false,
+         refreshing: false
+       });
+     }).then(res => {
+       //console.log(this.state.localData);
+     })
+     .catch(error => {
+       this.setState({ error, loading: false });
+       console.log(error);
+     });
+   };
+
+   makeOtherRemoteRequest = () => {
+    var date = new Date;
+    var query = '{articles(date:"'+date.toISOString()+'", publishedByUser:false){id author title description url urlToImage category language country publishedAt publishedByUser}}';
+    console.log("makeOtherRemoteRequest query:" + query);
+     const fetch = createApolloFetch({
+       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+     });
+     fetch({
+       query: query,
+     })
+     .then(res => {
+       this.setState({
+         otherData: res.data.articles,
+         loading: false,
+         refreshing: false
+       });
+     }).then(res => {
+       //console.log(this.state.otherData);
+     })
+     .catch(error => {
+       this.setState({ error, loading: false });
+       console.log(error);
+     });
+   };
 
   getGeoLocation = () => {
     navigator.geolocation.getCurrentPosition(
@@ -149,10 +237,68 @@ export default class News extends Component {
           longitude: position.coords.longitude,
           geoError: null,
         });
+        console.log("longitude: " + position.coords.longitude + " latitude: "+ position.coords.latitude)
       },
       (error) => this.setState({ geoError: error.message }),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
+  }
+
+  getTime = (publishedAt) => {
+    var now = new Date().toISOString();
+    var diffYears = null;
+    var diffMonths = null;
+    var diffDays = null;
+    var diffHrs = null;
+    var diffMins = null;
+    var diffSecs = null;
+    //console.log(now + " " + publishedAt);
+    var nowSplit =  now.split("-");
+    var paSplit =  publishedAt.split("-");
+    if(nowSplit[0] >= paSplit[0]){
+      diffYears = nowSplit[0]-paSplit[0]
+    }
+    if(nowSplit[1] >= paSplit[1]){
+      diffMonths = nowSplit[1]-paSplit[1]
+    }else{
+      diffMonths = 12 - (paSplit[1]-nowSplit[1])
+    }
+    var nowSplit2 =  nowSplit[2].split("T");
+    var paSplit2 =  paSplit[2].split("T");
+    if(nowSplit2[0] >= paSplit2[0]){
+      diffDays = nowSplit2[0]-paSplit2[0]
+    }else{
+      //Here we actually need to make a difference betwenn months with 28/30/31 days
+      diffHrs = 30 - (paSplit2[0]-nowSplit2[0])
+    }
+    var nowSplit3 =  nowSplit2[1].split(":");
+    var paSplit3 =  paSplit2[1].split(":");
+    if(nowSplit3[0] >= paSplit3[0]){
+      diffHrs = nowSplit3[0]-paSplit3[0]
+    }else{
+      diffHrs = 24 - (paSplit3[0]-nowSplit3[0])
+    }
+    if(nowSplit3[1] >= paSplit3[1]){
+      diffMins = nowSplit3[1]-paSplit3[1]
+    }else{
+      diffMins = 60 - (paSplit3[1]-nowSplit3[1])
+    }
+    var difference = null;
+    if(diffYears !== 0){
+      difference = diffYears + " y "
+    }
+    if(diffMonths !== 0){
+      difference = difference + diffMonths + " m "
+    }
+    if(diffDays !== 0){
+      difference = difference + diffDays + " d "
+    }
+    if(diffHrs !== 0){
+      difference = difference + diffHrs + " h "
+    }
+    difference = difference + diffMins + " m ago"
+    //console.log(difference)
+    return(difference);
   }
 
   handleRefresh = () => {
@@ -160,10 +306,12 @@ export default class News extends Component {
       {
         page: 1,
         seed: this.state.seed + 1,
-        refreshing: true
+        refreshing: true,
+        image: 'https://source.unsplash.com/random'
       },
       () => {
-        this.makeRemoteRequest();
+        this.makeLocalRemoteRequest();
+        this.makeOtherRemoteRequest();
       }
     );
   };
@@ -174,7 +322,8 @@ export default class News extends Component {
         page: this.state.page + 1
       },
       () => {
-        this.makeRemoteRequest();
+        //this.makeLocalRemoteRequest();
+        //this.makeOtherRemoteRequest();
       }
     );
   };
@@ -198,6 +347,100 @@ export default class News extends Component {
     );
   };
 
+  renderLisHeaderItem = (item) => {
+    return (
+      <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{backgroundColor:'red'}}>
+        <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
+          {
+            item.urlToImage === null || item.urlToImage === "" ? (
+              <Image
+                source={{ uri: testImage }}
+                style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
+              />
+            ) : (
+              <Image
+                source={{ uri: item.urlToImage }}
+                style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
+              />
+            )
+          }
+          <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
+            <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
+              <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
+              <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
+                {
+                  item.urlToImage === null || item.urlToImage === "" ? (
+                    <Thumbnail source={{ uri: testImage }} />
+                  ) : (
+                    <Thumbnail source={{ uri: item.urlToImage }} />
+                  )
+                }
+                <View style={{flexDirection:'column', flex:1, justifyContent:'space-between', paddingLeft:10}}>
+                  <View style={{}}>
+                    <Text style={{color:'white'}}>
+                      {item.title || 'No title available'}
+                    </Text>
+                  </View>
+                  <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                    <Text note>{item.source || item.author || 'No publisher available'}</Text>
+                    <Text note style={{}}>{this.getTime(item.publishedAt) || 'No time available'}</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    )
+  }
+
+  renderListBodyItem = (item) => {
+    return (
+      <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
+        <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
+          {
+            item.urlToImage === null || item.urlToImage === "" ? (
+              <Image
+                source={{ uri: testImage }}
+                style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
+              />
+            ) : (
+              <Image
+                source={{ uri: item.urlToImage }}
+                style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
+              />
+            )
+          }
+          <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
+            <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
+              <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
+              <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
+                {
+                  item.urlToImage === null || item.urlToImage === "" ? (
+                    <Thumbnail source={{ uri: testImage }} />
+                  ) : (
+                    <Thumbnail source={{ uri: item.urlToImage }} />
+                  )
+                }
+                <View style={{flexDirection:'column', flex:1, justifyContent:'space-between', paddingLeft:10}}>
+                  <View style={{}}>
+                    <Text style={{color:'white'}}>
+                      {item.title || 'No title available'}
+                    </Text>
+                  </View>
+                  <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                    <Text note>{item.source || item.author || 'No publisher available'}</Text>
+                    <Text note style={{}}>{this.getTime(item.publishedAt) || 'No time available'}</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    )
+  }
+
   renderHeader = () => {
     return (
       <View style={{}}>
@@ -218,53 +461,15 @@ export default class News extends Component {
           }}
         >
           <FlatList
-            data={this.state.data}
+            data={this.state.localData}
             numColumns={1}
-            renderItem={({ item }) => (
-              <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
-                <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
-                  {
-                    item.urlToImage === "null" || item.urlToImage === "" ? (
-                      <Image
-                        source={{ uri: testImage }}
-                        style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
-                      />
-                    ) : (
-                      <Image
-                        source={{ uri: item.urlToImage }}
-                        style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
-                      />
-                    )
-                  }
-                  <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
-                    <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
-                      <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
-                      <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
-                        {
-                          item.urlToImage === "null" || item.urlToImage === "" ? (
-                            <Thumbnail source={{ uri: testImage }} />
-                          ) : (
-                            <Thumbnail source={{ uri: item.urlToImage }} />
-                          )
-                        }
-                        <View style={{flexDirection:'row', flex:1, justifyContent:'flex-start', paddingLeft:10}}>
-                          <View style={{flexDirection:'column', justifyContent:'space-between'}}>
-                            <View style={{}}>
-                              <Text style={{color:'white'}}>
-                                {item.title || 'No title available'}
-                              </Text>
-                            </View>
-                            <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                              <Text note>{item.source || item.author || 'No publisher available'}</Text>
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              </TouchableWithoutFeedback>
-            )}
+            renderItem={({ item }) => {
+              if(item.publishedByUser === true){
+                return(this.renderLisHeaderItem(item))
+              } else {
+                return(null)
+              }
+            }}
             horizontal={true}
             keyExtractor={item => item.id}
             //ItemSeparatorComponent={this.renderSeparator}
@@ -300,51 +505,53 @@ export default class News extends Component {
         data={data}
         key={(this.state.orientation === 'portrait' ? 'portrait' : 'landscape')}
         numColumns={columns}
-        renderItem={({ item }) => (
-          <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
-            <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
-              {
-                item.urlToImage === "null" || item.urlToImage === "" ? (
-                  <Image
-                    source={{ uri: testImage }}
-                    style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
-                  />
-                ) : (
-                  <Image
-                    source={{ uri: item.urlToImage }}
-                    style={{ resizeMode: 'cover', height: 200, width: null, flex: 1, borderRadius:5}}
-                  />
-                )
-              }
-              <View style={{ position: 'absolute', left:0, bottom: 0, right:0}}>
-                <View style={{opacity:1, position: 'absolute', left: 0, bottom: 0, right:0, padding:5}}>
-                  <View style={{opacity: 0.6, backgroundColor: 'black', position: 'absolute', left: 0, top: 0, bottom:0, right:0, borderBottomLeftRadius:5, borderBottomRightRadius:5}}/>
-                  <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
-                    {
-                      item.urlToImage === "null" || item.urlToImage === "" ? (
-                        <Thumbnail source={{ uri: testImage }} />
-                      ) : (
-                        <Thumbnail source={{ uri: item.urlToImage }} />
-                      )
-                    }
-                    <View style={{flexDirection:'row', flex:1, justifyContent:'flex-start', paddingLeft:10}}>
-                      <View style={{flexDirection:'column', justifyContent:'space-between'}}>
-                        <View style={{}}>
-                          <Text style={{color:'white'}}>
-                            {item.title || 'No title available'}
-                          </Text>
-                        </View>
-                        <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                          <Text note>{item.source || item.publishedAt || 'No time available'}</Text>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </View>
-          </TouchableWithoutFeedback>
-        )}
+        renderItem={({ item }) => {
+          if(item.publishedByUser === false){
+            return(this.renderListBodyItem(item))
+          } else {
+            return(null)
+          }
+        }}
+        keyExtractor={item => item.id}
+        //ItemSeparatorComponent={this.renderSeparator}
+        ListHeaderComponent={
+          this.state.orientation === 'portrait' ? (
+            this.renderHeader
+           ) : null
+        }
+        ListFooterComponent={this.renderFooter}
+        onRefresh={this.handleRefresh}
+        refreshing={this.state.refreshing}
+        onEndReached={this.handleLoadMore}
+        onEndReachedThreshold={50}
+      />
+    </List>
+    )
+  }
+
+  renderLandscapeList = (columns, data) => {
+    return(
+    <List
+      containerStyle={{
+      borderTopWidth: 0,
+      borderBottomWidth: 0,
+      flex: 1,
+      marginTop: 0,
+      marginHorizontal:3,
+      backgroundColor:'transparent',
+    }}
+    >
+      <FlatList
+        data={data}
+        key={(this.state.orientation === 'portrait' ? 'portrait' : 'landscape')}
+        numColumns={columns}
+        renderItem={({ item }) => {
+          if(item.publishedByUser === false){
+            return(null)
+          } else {
+            return(this.renderLisHeaderItem(item))
+          }
+        }}
         keyExtractor={item => item.id}
         //ItemSeparatorComponent={this.renderSeparator}
         ListHeaderComponent={
@@ -377,25 +584,6 @@ export default class News extends Component {
     );
   };
 
-  //fetch data from url into json
-  /*fetchData = async () => {
-      const response = await fetch('');
-      const json = response.json();
-      this.setState({date: json});
-  }
-
-  //refresh the current view
-  _onRefresh = () => {
-    this.setState({ refreshing: true });
-    this.fetchData().then(() => {
-      this.setState({ refreshing: false });
-    });
-  };
-
-  componentWillMount() {
-    this.fetchData();
-  }*/
-
   openLink = link => {
     Linking.canOpenURL(link).then(supported => {
       if (supported) {
@@ -408,106 +596,105 @@ export default class News extends Component {
 
   openArticle = item => {
     this.setState({ currentArticle: item.url })
-    console.log('Status: ' + this.state.orientation);
+    //console.log('Status: ' + this.state.orientation);
     if(this.state.orientation === 'portrait'){
-      console.log(item.url)
+      //console.log(item.url)
       this.props.navigation.navigate('Details', item);
     }
   };
 
-  random = (min, max) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
-
   render() {
-    const currentdate = new Date();
-    const days = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday"
-    ];
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
-    ];
     return (
-      <ImageBackground source={{uri:'https://images.pexels.com/photos/255379/pexels-photo-255379.jpeg?w=1260&h=750&dpr=2&auto=compress&cs=tinysrgb'}} style={{width: '100%', height: '100%'}}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "flex-start",
-            flex: 1,
-            opacity: 1
-          }}
-        >
-          <View style={{ flex: 1 }}>
+      <View>
+        <ImageBackground source={{uri:this.state.image}} style={{width: '100%', height: '100%'}}>
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <Text>Origin: {this.state.notification.origin}</Text>
+            <Text>Data: {JSON.stringify(this.state.notification.data)}</Text>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              flex: 1,
+              opacity: 1
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              {
+                this.state.orientation === 'portrait' && this.state.devicetype === 'tablet' ? this.renderList(2, this.state.otherData) : null
+              }
+              {
+                this.state.orientation === 'portrait' && this.state.devicetype === 'phone' ? this.renderList(1, this.state.otherData) : null
+              }
+              {
+              this.state.orientation === 'landscape' ? (
+                <SegmentedControlTab
+                  values={['Local News', 'Other News']}
+                  selectedIndex={this.state.selectedTab}
+                  onTabPress={this.handleIndexChange}
+                  tabsContainerStyle={{padding:5}}
+                />
+                ) : null
+              }
+              {
+                this.state.orientation === 'landscape' && this.state.selectedTab === 0 ? (
+                    this.renderLandscapeList(1, this.state.localData)
+                  ) : (
+                    null
+                  )
+              }
+              {
+                this.state.orientation === 'landscape' && this.state.selectedTab === 1 ? (
+                    this.renderList(1, this.state.otherData)
+                  ) : (
+                    null
+                  )
+              }
+            </View>
             {
-              this.state.orientation === 'portrait' && this.state.devicetype === 'tablet' ? this.renderList(2, this.state.data) : null
-            }
-            {
-              this.state.orientation === 'portrait' && this.state.devicetype === 'phone' ? this.renderList(1, this.state.data) : null
-            }
-            {
-            this.state.orientation === 'landscape' ? (
-              <SegmentedControlTab
-                values={['Local News', 'Other News']}
-                selectedIndex={this.state.selectedTab}
-                onTabPress={this.handleIndexChange}
-                tabsContainerStyle={{padding:5}}
-              />
+              this.state.orientation === 'landscape' ? (
+                <View
+                  style={{
+                    height: '100%',
+                    width: 1,
+                    backgroundColor: "#CED0CE"
+                  }}
+                />
               ) : null
             }
             {
-              this.state.orientation === 'landscape' ? (
-                this.renderList(1, this.state.data)
-                ) : null
+              this.state.orientation === 'landscape' && this.state.currentArticle !== null ? (
+                <View style={{flex:1.5}}>
+                  <WebView
+                    source={{uri: this.state.currentArticle}}
+                  />
+                </View>
+              ) : null
             }
-          </View>
-          {
-            this.state.orientation === 'landscape' ? (
-              <View
-                style={{
-                  height: '100%',
-                  width: 1,
-                  backgroundColor: "#CED0CE"
-                }}
-              />
-            ) : null
-          }
-          {
-            this.state.orientation === 'landscape' && this.state.currentArticle !== null ? (
-              <View style={{flex:1.5}}>
-                <WebView
-                  source={{uri: this.state.currentArticle}}
-                />
-              </View>
-            ) : null
-          }
-          {
-            this.state.orientation === 'landscape' && this.state.currentArticle === null ? (
-              <View style={{flex:1.5, justifyContent:'center'}}>
-                <Text style={{textAlign:'center', justifyContent:'center', alignItems:'center'}}>
-                  Select an article from the list to read it
-                </Text>
-              </View>
-            ) : null
-          }
-        </View>   
-      </ImageBackground>        
+            {
+              this.state.orientation === 'landscape' && this.state.currentArticle === null ? (
+                <View style={{flex:1.5, justifyContent:'center'}}>
+                  <Text style={{textAlign:'center', justifyContent:'center', alignItems:'center'}}>
+                    Select an article from the list to read it
+                  </Text>
+                </View>
+              ) : null
+            }
+          </View>   
+        </ImageBackground>
+        {/*<DropdownAlert
+          ref={ref => this.dropdown = ref}
+          containerStyle={{
+            backgroundColor: MAIN_CUSTOM_COLOR,
+          }}
+          showCancel={true}
+          onClose={data => this.handleClose(data)}
+          onCancel={data => this.handleCancel(data)}
+          imageSrc={'https://facebook.github.io/react-native/docs/assets/favicon.png'}
+          renderImage={(props) => this.renderImage(props)}
+          renderCancel={(props) => this.renderImage(props)}
+        />*/}
+      </View>        
     );
   }
 }

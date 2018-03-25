@@ -28,10 +28,31 @@ import {
 const Orientation = require("../config/orientation.js");
 
 export default class ArticleDetail extends Component {
+
+  renderText = (description) => {
+    return(
+      <Text style={{margin:10}}>
+        {description}
+      </Text>
+    )
+  }
+
   render() {
-    const {url}= this.props.navigation.state.params;
+    const {url, publishedByUser, description}= this.props.navigation.state.params;
+    console.log(url);
     return (
-      <WebView source={{ uri: url }} />
+      <View style={{flex:1.5}}>
+        { 
+          publishedByUser === true ? (
+            this.renderText(description)
+          ) : (
+            null
+          )
+        }
+        <WebView
+          source={{uri: url}}
+        />
+      </View>
     );
   }
 }

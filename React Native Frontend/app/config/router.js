@@ -11,6 +11,7 @@ import About from '../screens/about';
 import ArticleDetail from '../screens/articleDetail';
 import WriteArticle from '../screens/writeArticle';
 import ViewPhotos from '../screens/viewPhotos';
+import Camera from '../screens/camera';
 
 export const NewsStack = StackNavigator({
     News: {
@@ -38,7 +39,13 @@ export const NewsStack = StackNavigator({
       navigationOptions: {
         title: 'Select Photo'
       }
-  },
+    },
+    Camera: {
+      screen: Camera,
+      navigationOptions: {
+        title: 'Take a picture'
+      }
+    },
   }
 );
 

@@ -1,67 +1,463 @@
-import React, { Component } from 'react';
+https://images.pexels.com/photos/255379/pexels-photo-255379.jpeg?w=1260&h=750&dpr=2&auto=compress&cs=tinysrgb
+
+
+import React, { Component } from "react";
 import {
   AppRegistry,
   Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-} from 'react-native';
-import { RNCamera } from 'react-native-camera';
+  View,
+  TextInput,
+  Platform,
+  CameraRoll,
+  TouchableHighlight,
+  Image,
+  Picker,
+  ScrollView
+} from "react-native";
+import { Divider, Icon, Button } from "react-native-elements";
+import ViewPhotos from "./viewPhotos";
+import { graphql } from 'react-apollo';
+import { gql } from 'graphql-tag';
+import DatePicker from 'react-native-datepicker';
+const { createApolloFetch } = require('apollo-fetch');
+var moment = require('moment');
+var validUrl = require('valid-url');
+import t from 'tcomb-form-native';
+import RNGooglePlacePicker from 'react-native-google-place-picker';
+var wa = require('./writeArticle');
 
-export default class Camera extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <RNCamera
-            ref={ref => {
-              this.camera = ref;
-            }}
-            style = {styles.preview}
-            type={RNCamera.Constants.Type.back}
-            flashMode={RNCamera.Constants.FlashMode.on}
-            permissionDialogTitle={'Permission to use camera'}
-            permissionDialogMessage={'We need your permission to use your camera phone'}
-        />
-        <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center',}}>
-        <TouchableOpacity
-            onPress={this.takePicture.bind(this)}
-            style = {styles.capture}
-        >
-            <Text style={{fontSize: 14}}> SNAP </Text>
-        </TouchableOpacity>
+const Form = t.form.Form;
+
+var Category = t.enums({
+  general: 'General',
+  business: 'Business',
+  entertainment: 'Entertainment',
+  health: 'Health',
+  science: 'Science',
+  sports: 'Sports',
+  technology: 'Technology'
+});
+
+var Language = t.enums({
+  de: 'German',
+  en: 'English'
+});
+
+var Country = t.enums({
+  de: 'Germany',
+  us: 'United States',
+  gb: 'Great Britain'
+});
+
+Form.stylesheet.dateValue.normal.borderColor = '#d0d2d3';
+Form.stylesheet.dateValue.normal.borderRadius = 3;
+Form.stylesheet.dateValue.normal.borderWidth = 1;
+
+var Article = t.struct({
+  title: t.String,
+  text: t.String,
+  author: t.String,
+  date: t.Date,
+  url: t.String,
+  longitude: t.Number,
+  latitude: t.Number,
+  category: Category,
+  language: t.maybe(Language),
+  country: t.maybe(Country),
+  urlToImage: t.maybe(t.String)
+});
+
+const categories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology'];
+const countries = ['de', 'us', 'gb'];
+const languages = ['de', 'en'];
+const label_categories = ['General', 'Business', 'Entertainment', 'Health', 'Science', 'Sports', 'Technology'];
+const label_countries = ['Germany', 'United States', 'Great Britain'];
+const label_languages = ['German', 'English'];
+
+function template(locals) {
+  // in locals.inputs you find all the rendered fields
+  return (
+    <View>
+      {locals.inputs.title}
+      {locals.inputs.text}
+      {locals.inputs.author}
+      {locals.inputs.date}
+      {locals.inputs.url}
+      <View style={{flexDirection: 'row'}}>
+        <View style={{flex: 1}}>
+          {locals.inputs.longitude}
+        </View>
+        <View style={{flex: 1}}>
+          {locals.inputs.latitude}
         </View>
       </View>
-    );
+      {/*<TouchableHighlight style={styles.button} onPress={null} underlayColor='#99d9f4'>
+          <Text style={styles.buttonText}>{}</Text>
+  </TouchableHighlight>*/}
+      {locals.inputs.category}
+      {locals.inputs.language}
+      {locals.inputs.country}
+      {locals.inputs.urlToImage}
+    </View>
+  );
+};
+
+const stylesheet = _.cloneDeep(t.form.Form.stylesheet);
+
+stylesheet.fieldset = {
+  flexDirection: 'row'
+};
+stylesheet.formGroup.normal.flex = 1;
+stylesheet.formGroup.error.flex = 1;
+
+const options = {
+  template: template,
+  fields: {
+    title: {
+      error: 'Please provide a title'
+    },
+    text: {
+      error: 'Please provide a text',
+      multiline: true,
+      stylesheet: {
+        ...Form.stylesheet,
+        textbox: {
+            ...Form.stylesheet.textbox,
+            normal: {
+              ...Form.stylesheet.textbox.normal,
+              height: 150
+            },
+            error: {
+              ...Form.stylesheet.textbox.error,
+              height: 150
+          }
+        }
+      }
+    },
+    author: {
+      error: 'Please provide your name',
+    },
+    url: {
+      error: 'Please provide the url to your article',
+    },
+    longitude: {
+      error: 'Please provide a valid longitude',
+    },
+    latitude: {
+      error: 'Please provide a valid latitude',
+    },
+    category: {
+      error: 'Please select on of the categories',
+    },
+  },
+};
+
+let _this = null;
+const testImage= 'https://source.unsplash.com/random';
+
+export default class WriteArticle extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value:null,
+      image:testImage,
+      latitude:null,
+      longitude:null,
+      location:null
+    };
+    this.onPress = this.onPress.bind(this);
   }
 
-  takePicture = async function() {
-    if (this.camera) {
-      const options = { quality: 0.5, base64: true };
-      const data = await this.camera.takePictureAsync(options)
-      console.log(data.uri);
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: "Write Article",
+      headerRight: (
+        <Icon
+          name="send"
+          onPress={() => {
+            _this.onPress();
+          }}
+          color="#007AFF"
+        />
+      ),
+      style: {
+        marginTop: Platform.OS === "android" ? 24 : 0
+      }
+    };
+  };
+
+  getInitialState() {
+    return {
+      value: {
+        longitude: this.state.longitude,
+        latitude: this.state.latitude
+      }
+    };
+  };
+
+  async componentDidMount() {
+    _this = this;
+    this.refs.form.getComponent('title').refs.input.focus();
+    this.getGeoLocation();
+  }
+
+  sumbit = (value) => {
+    /*if(this.state.text !== null){
+      var text = this.state.text.replace(/\n/g, " ");
+    }
+    var v1 = this.state.date;
+    var v2 = v1.split(' ');
+    var v3 = v2[1].split(':');
+    var date = null;
+    if(v2[2] == 'pm'){
+      var hour = parseInt(v3[0])
+      hour = hour+12;
+      date = v2[0]+"T"+hour+":"+v3[1]+":"+v3[2]+".000Z";
+    } else {
+      date = v2[0]+"T"+hour+":"+v3[1]+":"+v3[2]+".000Z";
+    }*/
+    console.log("Trying to submit " + value.author + "; " + value.title + "; " + value.text + "; " + value.url + "; " + value.urlToImage + "; " + value.category + "; " + value.language + "; " + value.country + "; " + value.date.toISOString() );
+    const fetch = createApolloFetch({
+      uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+    });
+    fetch({
+      query: 'mutation {addArticle(author:"' + value.author + '" title:"' + value.title + '" description:"' + value.text +  '" url:"' + value.url + '" urlToImage:"' + value.urlToImage + '" category:"' + value.category + '" language:"' + value.language + '" country:"' + value.country + '" publishedAt:"' + value.date.toISOString() + '" publishedByUser:true geotype:"Point" lat:"' + value.latitude + '" lng:"' + value.longitude + '") { id }}'
+    })
+    .then(respnse => {
+      console.log('Article was generated with id ', respnse.data)
+      console.log('Error ', respnse.errors)
+    })
+    .catch(error => {
+      console.log('Error while submitting article: ' + error);
+    });
+  };
+
+  showLocation() {
+    RNGooglePlacePicker.show((response) => {
+      if (response.didCancel) {
+        console.log('User cancelled GooglePlacePicker');
+      }
+      else if (response.error) {
+        console.log('GooglePlacePicker Error: ', response.error);
+      }
+      else {
+        this.setState({
+          location: response
+        });
+      }
+    })
+  }
+
+  getGeoLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log('Inside geo determination: ' + position.coords.latitude + ' ' + position.coords.longitude)
+        this.setState({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          value: {
+            "longitude": position.coords.longitude,
+            "latitude": position.coords.latitude
+          },
+          geoError: null,
+        });
+      },
+      (error) => this.setState({ geoError: error.message }),
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+    );
+    console.log('Finish geo determination: ' + this.state.latitude + ' ' + this.state.longitude)
+  };
+
+  onChange(value) {
+    if(value.text){
+      value.text = value.text.replace(/[\r\n]+/g," ");
+    }
+    console.log(value);
+    if(validUrl.isWebUri(value.urlToImage)){
+      this.setState({ value });
+      this.setState({ image:value.urlToImage });
+    } else {
+      value.urlToImage = testImage;
+      this.setState({ value });
     }
   };
+
+  clearForm() {
+    this.setState({ value: null });
+  };
+
+  onPress() {
+    var value = this.refs.form.getValue();
+    if (value) {
+      console.log(value);
+      this.sumbit(value);
+      this.clearForm();
+    }
+  };
+
+  /*drawImage() {
+    if(this.state.value !== null) {
+      if(validUrl.isUri(this.state.value.urlToImage)) {
+        return (<Image
+                source={{ uri: this.state.value.urlToImage }}
+                style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
+               />)
+      }
+    } else {
+      return (<Image
+              source={{ uri: testImage }}
+              style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
+            />)
+    }
+  };*/
+
+  render() {
+    return (
+      <View style={styles.container2}>
+        <ScrollView>
+          <Form 
+            ref="form"
+            type={Article}
+            options={options}
+            value={this.state.value}
+            onChange={this.onChange.bind(this)}
+          />
+          <Image
+            source={{ uri: this.state.image }}
+            style={{ resizeMode: 'cover', height: 200, flex: 1, borderRadius:5}}
+          />
+          <TouchableOpacity onPress={() => this.showLocation(_this)}>
+            <Text style={{fontSize: 20, fontWeight:'bold'}}>
+              Click me to push Google Place Picker!
+            </Text>
+          </TouchableOpacity>
+          <Text style={{color: 'black', fontSize: 15}}>
+            {JSON.stringify(this.state.location)}
+          </Text>
+        </ScrollView>
+      </View>   
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
-    backgroundColor: 'black'
-  },
-  preview: {
-    flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     alignItems: 'center'
   },
-  capture: {
-    flex: 0,
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    padding: 15,
-    paddingHorizontal: 20,
+  container2: {
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#ffffff',
+  },
+  title: {
+    fontSize: 30,
     alignSelf: 'center',
-    margin: 20
+    marginBottom: 30
+  },
+  buttonText: {
+    fontSize: 18,
+    color: 'white',
+    alignSelf: 'center'
+  },
+  button: {
+    height: 36,
+    backgroundColor: '#48BBEC',
+    borderColor: '#48BBEC',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 10,
+    alignSelf: 'stretch',
+    justifyContent: 'center'
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React from 'react';
+import { Text, View, TouchableOpacity } from 'react-native';
+import { Camera, Permissions } from 'expo';
+
+export default class CameraExample extends React.Component {
+  state = {
+    hasCameraPermission: null,
+    type: Camera.Constants.Type.back,
+  };
+
+  async componentWillMount() {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    this.setState({ hasCameraPermission: status === 'granted' });
+  }
+
+  snap = async () => {
+    if (this.camera) {
+      let photo = await this.camera.takePictureAsync();
+      console.log("took photo: " + photo);
+      Expo.FileSystem.copyAsync(photo);
+    }
+  };
+
+  render() {
+    const { hasCameraPermission } = this.state;
+    if (hasCameraPermission === null) {
+      return <View />;
+    } else if (hasCameraPermission === false) {
+      return <Text>No access to camera</Text>;
+    } else {
+      return (
+        <View style={{ flex: 1 }}>
+          <Camera style={{ flex: 1 }} type={this.state.type}>
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: 'transparent',
+                flexDirection: 'row',
+                justifyContent: 'space-between'
+              }}>
+              <TouchableOpacity style={{flex: 0.1, alignSelf: 'flex-end', alignItems: 'center'}} onPress={() => {this.setState({type: this.state.type === Camera.Constants.Type.back ? Camera.Constants.Type.front : Camera.Constants.Type.back})}}>
+                <Text style={{ fontSize: 18, marginBottom: 10, color: 'white' }}>
+                  {' '}Flip{' '}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{flex: 0.1, alignSelf: 'flex-end', alignItems: 'center'}} onPress={() => {this.snap()}}>
+                <Text style={{ fontSize: 64, marginBottom: 10, color: 'white' }}>
+                  {' '}◯{' '}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{flex: 0.1, alignSelf: 'flex-end', alignItems: 'center'}} onPress={() => {}}>
+                <Text style={{ fontSize: 36, marginBottom: 10, color: 'white' }}>
+                  {' '}{' '}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Camera>
+        </View>
+      );
+    }
+  }
+}
