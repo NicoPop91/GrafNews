@@ -38,8 +38,8 @@ import {
   isIphoneX
 } from "react-native-device-detection";
 import Geocoder from 'react-native-geocoder';
-import CheckBox from 'react-native-check-box'
-import SegmentedControlTab from 'react-native-segmented-control-tab'
+import CheckBox from 'react-native-checkbox';
+import SegmentedControlTab from 'react-native-segmented-control-tab';
 const Device = require("react-native-device-detection");
 const Orientation = require("../config/orientation.js");
 
