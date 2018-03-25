@@ -12,7 +12,7 @@ const newsapi = new NewsAPI('aa8d9ecd389b4f358eb9c411ffa14724');
 const app = express();
 
 
-const MONGO_URI = 'mongodb://192.168.99.100:32768/MyDatabase';
+const MONGO_URI = 'mongodb://192.168.99.100:32809/MyDatabase';
 //const MONGO_URI = 'mongodb://g4qr3mtniplvry1i.myfritz.net:27017/MyDatabase';
 // const MONGO_URI = 'http://9p7wpw3ppo75fifx.myfritz.net:4000/playground';
 if (!MONGO_URI) {
