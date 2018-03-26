@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const GeoJSON = require('mongoose-geojson-schema');
 const Schema = mongoose.Schema;
 
 const ArticleSchema = new Schema({
@@ -10,7 +11,9 @@ const ArticleSchema = new Schema({
       category: { type: String },
       language: { type: String },
       country: { type: String },
-      publishedAt: { type: Date }
+      publishedAt: { type: Date },
+      publishedByUser: {type: Boolean},
+      location: {type: mongoose.Schema.Types.Point},
     },
     { usePushEach: true } // verhindert $pushAll und fixt alle Probleme von weiter unten!
 );

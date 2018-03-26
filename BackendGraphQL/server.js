@@ -11,12 +11,18 @@ const newsapi = new NewsAPI('aa8d9ecd389b4f358eb9c411ffa14724');
 
 const app = express();
 
+<<<<<<< HEAD
 //const MONGO_URI = 'mongodb://192.168.178.39:27017/NewsDB/';
 const MONGO_URI = 'mongodb://localhost:27017/NewsDB/';
 // const MONGO_URI = 'https://g4qr3mtniplvry1i.myfritz.net:27017/NewsDB';
 // const MONGO_URI = 'mongodb://192.168.99.100:32768/MyDatabase';
 // https://g4qr3mtniplvry1i.myfritz.net:27017/NewsDB
 // const MONGO_URI = 'mongodb://g4qr3mtniplvry1i.myfritz.net:27017/MyDatabase';
+=======
+
+const MONGO_URI = 'mongodb://192.168.99.100:32809/MyDatabase';
+//const MONGO_URI = 'mongodb://g4qr3mtniplvry1i.myfritz.net:27017/MyDatabase';
+>>>>>>> ad11e077f0c55daf21c502a6127927ff733b7b0b
 // const MONGO_URI = 'http://9p7wpw3ppo75fifx.myfritz.net:4000/playground';
 if (!MONGO_URI) {
     throw new Error('You must provide a MongoLab URI');
@@ -54,24 +60,21 @@ setInterval(() => {
     categories.forEach((category) => {
         languages.forEach((language) => {
             countries.forEach((country) => {
-
-
+                
+                
                 if (!((country === 'de' && language === 'en') || (country === 'us' && language === 'de') || (country === 'gb' && language === 'de'))) {
                     newsapi.v2.topHeadlines({
                         category: category,
                         language: language,
                         country: country,
                     }).then((response) => {
-                        //    console.log(response);
                         return response.articles;
                     }).then((articles) => {
                         articles.forEach((news) => {
-                            //    console.log(news.title);
                             Article.find({
                                     title: news.title
                                 })
                                 .then((result) => {
-                                    //console.log(result.length + " hallo");
                                     if (result.length == 0) {
                                         new Article({
                                             title: news.title,
@@ -83,25 +86,23 @@ setInterval(() => {
                                             category: category,
                                             country: country,
                                             language: language,
+                                            publishedByUser: false,
+                                            //lng: null,
+                                            //lat: null,
+                                            /*location: {
+                                                type: "Point",
+                                                point: [null,null]
+                                            },*/
                                         }).save();
                                     }
                                 });
                         });
                     });
-
+                    
                 }
-
-
+                
+                
             });
         });
     });
 },1560000 ); //1560000
-
-// suche ist Array mit komplettem Newsartikel
-// Tatverdächtiger schweigt bei Haftrichter
-/*Article.find({title: 'Tatverdächtiger schweigt bei Haftrichter'})
-.then((suche) => {
-  if( suche.length == 0){
-    console.log("Gleich!")
-  }
-  console.log(suche.length) });*/
