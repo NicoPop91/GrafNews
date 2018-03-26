@@ -81,9 +81,10 @@ export default class News extends Component {
       componentDidMount: false,
       currentArticle: null,
       selectedTab: 0,
-      sliderPosition: 0,
       notification: {},
-      image: 'https://source.unsplash.com/random'
+      image: 'https://source.unsplash.com/random',
+      geo: null,
+      geoAvailable: false
     };
 
     // Event Listener for orientation changes
@@ -136,34 +137,14 @@ export default class News extends Component {
       Permissions.NOTIFICATIONS
     );
     let finalStatus = existingStatus;
-  
     if (existingStatus !== 'granted') {
       const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
       finalStatus = status;
     }
-  
     if (finalStatus !== 'granted') {
       return;
     }
-  
     let token = await Notifications.getExpoPushTokenAsync();
-  
-    /*return fetch(PUSH_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        token: {
-          value: token,
-        },
-        user: {
-          username: 'User',
-        },
-      }),
-    });*/
-
     console.log("Trying to submit " + token );
     const fetch = createApolloFetch({
       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
@@ -229,6 +210,32 @@ export default class News extends Component {
      });
    };
 
+   makeGeoRemoteRequest = () => {
+    var date = new Date;
+    var query = '{geocode(lng:"' + this.state.longitude + '", lat:"' + this.state.latitude + '"){formattedAddress latitude longitude streetName city country country countryCode zipcode provider}}';
+    console.log("makeGeoRemoteRequest query:" + query);
+     const fetch = createApolloFetch({
+       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+     });
+     fetch({
+       query: query,
+     })
+     .then(res => {
+       this.setState({
+         geo: res.data.geocode,
+         loading: false,
+         refreshing: false,
+         geoAvailable: true
+       });
+     }).then(res => {
+       console.log(this.state.geo);
+     })
+     .catch(error => {
+       this.setState({ error, loading: false });
+       console.log(error);
+     });
+   };
+
   getGeoLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -237,7 +244,8 @@ export default class News extends Component {
           longitude: position.coords.longitude,
           geoError: null,
         });
-        console.log("longitude: " + position.coords.longitude + " latitude: "+ position.coords.latitude)
+        console.log("longitude: " + position.coords.longitude + " latitude: "+ position.coords.latitude);
+        this.makeGeoRemoteRequest();
       },
       (error) => this.setState({ geoError: error.message }),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
@@ -304,8 +312,6 @@ export default class News extends Component {
   handleRefresh = () => {
     this.setState(
       {
-        page: 1,
-        seed: this.state.seed + 1,
         refreshing: true,
         image: 'https://source.unsplash.com/random'
       },
@@ -354,7 +360,7 @@ export default class News extends Component {
           {
             item.urlToImage === null || item.urlToImage === "" ? (
               <Image
-                source={{ uri: testImage }}
+                source={{ uri: this.state.image }}
                 style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
               />
             ) : (
@@ -370,7 +376,7 @@ export default class News extends Component {
               <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
                 {
                   item.urlToImage === null || item.urlToImage === "" ? (
-                    <Thumbnail source={{ uri: testImage }} />
+                    <Thumbnail source={{ uri: this.state.image }} />
                   ) : (
                     <Thumbnail source={{ uri: item.urlToImage }} />
                   )
@@ -445,10 +451,15 @@ export default class News extends Component {
     return (
       <View style={{}}>
         {
-          this.state.componentDidMount ? (
-            <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingLeft: 10, paddingTop: 10 }}>
-              Local News
-            </Text>
+          this.state.componentDidMount && this.state.geoAvailable ? (
+            <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
+              <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(255, 255, 255, 0.6)'}}>
+                Fake News
+              </Text>
+              <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(255, 255, 255, 0.6)'}}>
+                {this.state.geo[0].city}, {this.state.geo[0].countryCode}
+              </Text>
+            </View>
           ) : null
         }
         <List
@@ -480,9 +491,11 @@ export default class News extends Component {
         </List>
         {
           this.state.componentDidMount ? (
-            <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingLeft: 10, paddingTop: 20 }}>
-              Other News
-            </Text>
+            <View style={{justifyContent:'center', alignItems:'flex-start', paddingHorizontal: 5, paddingTop: 10}}>
+              <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(255, 255, 255, 0.6)' }}>
+                Real News
+              </Text>
+            </View>
           ) : null
         }
       </View>
@@ -549,7 +562,7 @@ export default class News extends Component {
           if(item.publishedByUser === false){
             return(null)
           } else {
-            return(this.renderLisHeaderItem(item))
+            return(this.renderListBodyItem(item))
           }
         }}
         keyExtractor={item => item.id}
@@ -672,9 +685,9 @@ export default class News extends Component {
               ) : null
             }
             {
-              this.state.orientation === 'landscape' && this.state.currentArticle === null ? (
-                <View style={{flex:1.5, justifyContent:'center'}}>
-                  <Text style={{textAlign:'center', justifyContent:'center', alignItems:'center'}}>
+              this.state.orientation === 'landscape' && this.state.currentArticle === null && this.state.componentDidMount ? (
+                <View style={{flex:1.5, justifyContent:'center', alignItems:'center'}}>
+                  <Text style={{textAlign:'center', justifyContent:'center', alignItems:'center', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 16, paddingHorizontal:10, backgroundColor:'rgba(255, 255, 255, 0.6)'}}>
                     Select an article from the list to read it
                   </Text>
                 </View>
@@ -682,7 +695,7 @@ export default class News extends Component {
             }
           </View>   
         </ImageBackground>
-        {/*<DropdownAlert
+        {/*<DropdownAlert , width:'50%'
           ref={ref => this.dropdown = ref}
           containerStyle={{
             backgroundColor: MAIN_CUSTOM_COLOR,
