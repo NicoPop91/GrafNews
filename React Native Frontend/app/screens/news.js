@@ -18,7 +18,8 @@ import {
   Platform,
   WebView,
   Slider,
-  ImageBackground
+  ImageBackground,
+  AsyncStorage
 } from "react-native";
 import {
   List,
@@ -54,6 +55,7 @@ import {
 import SegmentedControlTab from 'react-native-segmented-control-tab'
 import { Font, Notifications, Permissions } from 'expo';
 import DropdownAlert from 'react-native-dropdownalert';
+import Storage from 'react-native-storage';
 const Device = require("react-native-device-detection");
 const Orientation = require("../config/orientation.js");
 const { createApolloFetch } = require('apollo-fetch');
@@ -61,6 +63,62 @@ const { createApolloFetch } = require('apollo-fetch');
 //------------------------------------------------------------------------------
 
 const testImage = 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Test_card.png';
+
+global.catChanged = false;
+
+global.storage = new Storage({
+	// maximum capacity, default 1000 
+	size: 1000,
+
+	// Use AsyncStorage for RN, or window.localStorage for web.
+	// If not set, data would be lost after reload.
+	storageBackend: AsyncStorage,
+	
+	// expire time, default 1 day(1000 * 3600 * 24 milliseconds).
+	// can be null, which means never expire.
+	defaultExpires: null,
+	
+	// cache data in the memory. default is true.
+	enableCache: true,
+	
+	// if data was not found in storage or expired,
+	// the corresponding sync method will be invoked and return 
+	// the latest data.
+	sync : {
+		// we'll talk about the details later.
+	}
+});
+
+global.getCurrentCategories = () => {
+  storage.load({
+    key: 'subscriptions',
+    autoSync: true,
+    syncInBackground: true,
+    syncParams: {
+      extraFetchOptions: {
+      },
+      someFlag: true,
+    },
+  }).then(ret => {
+    console.log(ret);
+    global.categories = ret;
+  }).catch(err => {
+    global.categories = [
+      {"id": 1, "cat": "General", "subscribed": true},
+      {"id": 2, "cat": "Business", "subscribed": false},
+      {"id": 3, "cat": "Entertainment", "subscribed": false},
+      {"id": 4, "cat": "Health", "subscribed": false},
+      {"id": 5, "cat": "Science", "subscribed": false},
+      {"id": 6, "cat": "Sports", "subscribed": false},
+      {"id": 7, "cat": "Technology", "subscribed": false}
+      ];
+  })
+}
+
+if(global.categories === undefined) {
+  global.getCurrentCategories(); 
+}
+
 
 export default class News extends Component {
   constructor(props) {
