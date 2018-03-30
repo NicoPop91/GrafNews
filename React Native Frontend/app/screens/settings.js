@@ -210,17 +210,6 @@ export default class Settings extends Component {
           <Text>latitude: {this.state.latitude}</Text>
           <Text>longitude: {this.state.longitude}</Text>
           <Text>address: {this.state.geolocation}</Text>
-
-          <Button
-            onPress={ () => {
-              this.getCurrentCategories();
-            }}
-            title="Zeige Kategorien auf Console"
-            color="#841584"
-            accessibilityLabel="Fragt ab welche Kategorien zurzeit selektiert werden"
-          />
-
-
         </View>
       </View>
               )}
