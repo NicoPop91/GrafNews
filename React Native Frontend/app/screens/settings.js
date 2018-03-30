@@ -38,8 +38,9 @@ import {
   isIphoneX
 } from "react-native-device-detection";
 import Geocoder from 'react-native-geocoder';
-import CheckBox from 'react-native-checkbox';
+import CheckBox from 'react-native-check-box';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
+import Storage from 'react-native-storage';
 const Device = require("react-native-device-detection");
 const Orientation = require("../config/orientation.js");
 
@@ -114,24 +115,24 @@ export default class Settings extends Component {
     });
   }
 
-  _refreshStorageData = (data) => {
+  refreshStorageData = (data) => {
     try {
-      AsyncStorage.setItem('subscriptions', data);
+      console.log(data);
+      storage.save({
+        key: 'subscriptions',   // Note: Do not use underscore("_") in key!
+        data: data,
+        
+        // if not specified, the defaultExpires will be applied instead.
+        // if set to null, then it will never expire.
+        expires: null
+      });
+      //AsyncStorage.setItem('subscriptions', data);
     } catch (error) {
       // Error saving data
     }
   }
 
   render() {
-    const categories = [
-      {"id": 1, "cat": "General", "subscribed": true},
-      {"id": 2, "cat": "Business", "subscribed": true},
-      {"id": 3, "cat": "Entertainment", "subscribed": true},
-      {"id": 4, "cat": "Health", "subscribed": false},
-      {"id": 5, "cat": "Science", "subscribed": false},
-      {"id": 6, "cat": "Sports", "subscribed": true},
-      {"id": 7, "cat": "Technology", "subscribed": true}
-      ];
     return (
       <View>
       {
@@ -157,7 +158,7 @@ export default class Settings extends Component {
           }}
         >
           <FlatList
-            data={categories}
+            data={global.categories}
             numColumns={1}
             renderItem={({ item }) => (
               <TouchableWithoutFeedback>
@@ -165,10 +166,10 @@ export default class Settings extends Component {
                     <View style={{flex:1, justifyContent: 'center', paddingLeft: 10}}>
                     <CheckBox
                       style={{flex: 1, padding: 10}}
-                      onClick={ function() {
+                      onClick={ () => {
                         item.subscribed = !item.subscribed;
-                        console.log(categories);
-                        //this._refreshStorageData(categories);
+                        this.refreshStorageData(global.categories);
+                        global.catChanged = true;
                       }}
                       isChecked={item.subscribed}
                       leftText={item.cat}
@@ -209,6 +210,15 @@ export default class Settings extends Component {
           <Text>latitude: {this.state.latitude}</Text>
           <Text>longitude: {this.state.longitude}</Text>
           <Text>address: {this.state.geolocation}</Text>
+
+          <Button
+            onPress={ () => {
+              this.getCurrentCategories();
+            }}
+            title="Zeige Kategorien auf Console"
+            color="#841584"
+            accessibilityLabel="Fragt ab welche Kategorien zurzeit selektiert werden"
+          />
 
 
         </View>
