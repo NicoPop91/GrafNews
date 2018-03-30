@@ -7,7 +7,8 @@ const bodyParser = require('body-parser');
 const schema = require('./schema/schema');
 const NewsAPI = require('newsapi');
 //const newsapi = new NewsAPI('188776de06144080885d5b3f324f05e7');
-const newsapi = new NewsAPI('aa8d9ecd389b4f358eb9c411ffa14724');
+let apiKeyIndex = 1;
+let newsapi = new NewsAPI('aa8d9ecd389b4f358eb9c411ffa14724');
 
 const app = express();
 
@@ -92,6 +93,23 @@ setInterval(() => {
                                     }
                                 });
                         });
+                    }).catch((err)=>{
+                        if(err){
+                            //APIKey 1 ea30eaed8d1d45e3828339efc4a12c08
+                            //APIKey 2 aa8d9ecd389b4f358eb9c411ffa14724
+                            //APIKey 3 bdeb31f66ff14026ae9db0a657aafa42
+                            apiKeyIndex++;
+                            if(apiKeyIndex=4){
+                                newsapi = new NewsAPI('ea30eaed8d1d45e3828339efc4a12c08');
+                                apiKeyIndex=1;
+                            }
+                            if(apiKeyIndex=2){
+                               newsapi = new NewsAPI('aa8d9ecd389b4f358eb9c411ffa14724'); 
+                            }
+                            if(apiKeyIndex=3){
+                                newsapi = new NewsAPI('bdeb31f66ff14026ae9db0a657aafa42');
+                            }
+                        }
                     });
 
                 }
