@@ -3,7 +3,8 @@ const {
     GraphQLObjectType,
     GraphQLString,
     GraphQLID,
-    GraphQLBoolean
+    GraphQLBoolean,
+    GraphQLInt
 } = graphql;
 const {
     GraphQLDateTime
@@ -110,6 +111,12 @@ const mutation = new GraphQLObjectType({
             args: {
                 token: {
                     type: GraphQLString
+                },
+                text: {
+                    type: GraphQLString
+                },
+                timeToWait: {
+                    type: GraphQLInt
                 }
             },
             resolve(parentValue, args) {
@@ -121,17 +128,19 @@ const mutation = new GraphQLObjectType({
                 }
                 // Construct a message (see https://docs.expo.io/versions/latest/guides/push-notifications.html)
                 if (!error)
-                    messages.push({
-                        to: args.token,
-                        sound: 'default',
-                        body: 'This is a test notification',
-                        data: {
-                            withSome: 'data'
-                        },
-                    })
+                    setTimeout(() => {
+                        messages.push({
+                            to: args.token,
+                            sound: 'default',
+                            body: args.text,
+                            data: {
+                                randomImageUrl: 'https://source.unsplash.com/random'
+                            },
+                        })
+                    }, args.timeToWait)
                 let chunks = expo.chunkPushNotifications(messages);
 
-                (async() => {
+                (async () => {
                     // Send the chunks to the Expo push notification service. There are
                     // different strategies you could use. A simple one is to send one chunk at a
                     // time, which nicely spreads the load out over time:
@@ -143,6 +152,7 @@ const mutation = new GraphQLObjectType({
                             console.error(error);
                         }
                     }
+                    messages=[];
                 })();
                 return {
                     status: (!error) ? "ok" : "Push token " + args.token + " is not a valid Expo push token"
