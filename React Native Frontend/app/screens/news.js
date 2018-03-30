@@ -84,7 +84,8 @@ export default class News extends Component {
       notification: {},
       image: 'https://source.unsplash.com/random',
       geo: null,
-      geoAvailable: false
+      geoAvailable: false,
+      lastUpdate: new Date
     };
 
     // Event Listener for orientation changes
@@ -145,7 +146,7 @@ export default class News extends Component {
       return;
     }
     let token = await Notifications.getExpoPushTokenAsync();
-    console.log("Trying to submit " + token );
+    //console.log("Trying to submit " + token );
     const fetch = createApolloFetch({
       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
     });
@@ -153,7 +154,7 @@ export default class News extends Component {
       query: 'mutation {push(token:"' + token + '") { status }}'
     })
     .then(respnse => {
-      console.log('Status ' + respnse.data.push.status)
+      //console.log('Status ' + respnse.data.push.status)
     })
     .catch(error => {
       console.log('Error while submitting: ' + error);
@@ -173,6 +174,31 @@ export default class News extends Component {
      .then(res => {
        this.setState({
          localData: res.data.articles,
+         loading: false,
+         refreshing: false,
+         lastUpdate: date
+       });
+     }).then(res => {
+       //console.log(this.state.localData);
+     })
+     .catch(error => {
+       this.setState({ error, loading: false });
+       console.log(error);
+     });
+   };
+
+   loadMoreMakeLocalRemoteRequest = (date) => {
+    var query = '{articles(date:"'+date+'", publishedByUser:true, lng:"'+ this.state.longitude +'", lat:"'+ this.state.latitude +'"){id author title description url urlToImage category language country publishedAt publishedByUser}}';
+    console.log("makeLocalRemoteRequest query:" + query);
+     const fetch = createApolloFetch({
+       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+     });
+     fetch({
+       query: query,
+     })
+     .then(res => {
+       this.setState({
+         localData: [...this.state.localData, ...res.data.articles],
          loading: false,
          refreshing: false
        });
@@ -198,6 +224,31 @@ export default class News extends Component {
      .then(res => {
        this.setState({
          otherData: res.data.articles,
+         loading: false,
+         refreshing: false,
+         lastUpdate: date
+       });
+     }).then(res => {
+       //console.log(this.state.otherData);
+     })
+     .catch(error => {
+       this.setState({ error, loading: false });
+       console.log(error);
+     });
+   };
+
+   loadMoreMakeOtherRemoteRequest = (date) => {
+    var query = '{articles(date:"'+date+'", publishedByUser:false){id author title description url urlToImage category language country publishedAt publishedByUser}}';
+    console.log("makeOtherRemoteRequest query:" + query);
+     const fetch = createApolloFetch({
+       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+     });
+     fetch({
+       query: query,
+     })
+     .then(res => {
+       this.setState({
+         otherData: [...this.state.otherData, res.data.articles],
          loading: false,
          refreshing: false
        });
@@ -225,10 +276,11 @@ export default class News extends Component {
          geo: res.data.geocode,
          loading: false,
          refreshing: false,
-         geoAvailable: true
+         geoAvailable: true,
+         lastUpdate: date
        });
      }).then(res => {
-       console.log(this.state.geo);
+       //console.log(this.state.geo);
      })
      .catch(error => {
        this.setState({ error, loading: false });
@@ -322,14 +374,23 @@ export default class News extends Component {
     );
   };
 
-  handleLoadMore = () => {
+  handleLoadMore = (local) => {
     this.setState(
       {
         page: this.state.page + 1
       },
       () => {
-        //this.makeLocalRemoteRequest();
-        //this.makeOtherRemoteRequest();
+        if(this.state.componentDidMount){
+          if(local){
+            var date = new Date(this.state.localData[this.state.localData.length-1].publishedAt - 60000);
+            console.log('Last local item: ' + date);
+            this.loadMoreMakeLocalRemoteRequest(date);
+          }else{
+            var date = new Date(this.state.otherData[this.state.otherData.length-1].publishedAt - 60000);
+            console.log('Last other item: ' + date);
+            this.loadMoreMakeOtherRemoteRequest(date);
+          }
+        }
       }
     );
   };
@@ -360,7 +421,7 @@ export default class News extends Component {
           {
             item.urlToImage === null || item.urlToImage === "" ? (
               <Image
-                source={{ uri: this.state.image }}
+                source={{ uri: testImage }}
                 style={{ resizeMode: 'cover', height: 200, width: 350, flex: 1, borderRadius:5}}
               />
             ) : (
@@ -376,7 +437,7 @@ export default class News extends Component {
               <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
                 {
                   item.urlToImage === null || item.urlToImage === "" ? (
-                    <Thumbnail source={{ uri: this.state.image }} />
+                    <Thumbnail source={{ uri: testImage }} />
                   ) : (
                     <Thumbnail source={{ uri: item.urlToImage }} />
                   )
@@ -451,13 +512,10 @@ export default class News extends Component {
     return (
       <View style={{}}>
         {
-          this.state.componentDidMount && this.state.geoAvailable ? (
+          this.state.componentDidMount ? (
             <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(255, 255, 255, 0.6)'}}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
                 Fake News
-              </Text>
-              <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(255, 255, 255, 0.6)'}}>
-                {this.state.geo[0].city}, {this.state.geo[0].countryCode}
               </Text>
             </View>
           ) : null
@@ -492,7 +550,7 @@ export default class News extends Component {
         {
           this.state.componentDidMount ? (
             <View style={{justifyContent:'center', alignItems:'flex-start', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(255, 255, 255, 0.6)' }}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)' }}>
                 Real News
               </Text>
             </View>
@@ -536,7 +594,7 @@ export default class News extends Component {
         onRefresh={this.handleRefresh}
         refreshing={this.state.refreshing}
         onEndReached={this.handleLoadMore}
-        onEndReachedThreshold={50}
+        onEndReachedThreshold={20}
       />
     </List>
     )
@@ -620,10 +678,22 @@ export default class News extends Component {
     return (
       <View>
         <ImageBackground source={{uri:this.state.image}} style={{width: '100%', height: '100%'}}>
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          {/*<View style={{justifyContent: 'center', alignItems: 'center'}}>
             <Text>Origin: {this.state.notification.origin}</Text>
             <Text>Data: {JSON.stringify(this.state.notification.data)}</Text>
-          </View>
+          </View>*/}
+          {
+          this.state.componentDidMount && this.state.geoAvailable && this.state.orientation === 'portrait' && this.state.lastUpdate ? (
+            <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'flex-start', padding: 5, backgroundColor:'rgba(220, 220, 220, 0.6)'}}>
+              <Text style={{ color:'black', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 16, paddingHorizontal:10}}>
+                {this.state.geo[0].city}, {this.state.geo[0].countryCode}
+              </Text>
+              <Text style={{ color:'black', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 16, paddingHorizontal:10}}>
+                {this.state.lastUpdate.toLocaleTimeString()}
+              </Text>
+            </View>
+            ) : null
+          }
           <View
             style={{
               flexDirection: "row",
@@ -687,7 +757,7 @@ export default class News extends Component {
             {
               this.state.orientation === 'landscape' && this.state.currentArticle === null && this.state.componentDidMount ? (
                 <View style={{flex:1.5, justifyContent:'center', alignItems:'center'}}>
-                  <Text style={{textAlign:'center', justifyContent:'center', alignItems:'center', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 16, paddingHorizontal:10, backgroundColor:'rgba(255, 255, 255, 0.6)'}}>
+                  <Text style={{color:'white', textAlign:'center', justifyContent:'center', alignItems:'center', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 16, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
                     Select an article from the list to read it
                   </Text>
                 </View>
@@ -695,7 +765,7 @@ export default class News extends Component {
             }
           </View>   
         </ImageBackground>
-        {/*<DropdownAlert , width:'50%'
+        {/*<DropdownAlert
           ref={ref => this.dropdown = ref}
           containerStyle={{
             backgroundColor: MAIN_CUSTOM_COLOR,
