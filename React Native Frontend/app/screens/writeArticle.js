@@ -23,8 +23,8 @@ const { createApolloFetch } = require('apollo-fetch');
 var moment = require('moment');
 var validUrl = require('valid-url');
 import t from 'tcomb-form-native';
-import RNGooglePlacePicker from 'react-native-google-place-picker';
 import { ImagePicker } from 'expo';
+const Device = require("react-native-device-detection");
 
 const Form = t.form.Form;
 
@@ -163,7 +163,9 @@ export default class WriteArticle extends Component {
       image:testImage,
       latitude:null,
       longitude:null,
-      location:null
+      location:null,
+      easterEggCounter:0,
+      easterEggActive:false
     };
     this.onPress = this.onPress.bind(this);
   }
@@ -294,6 +296,13 @@ export default class WriteArticle extends Component {
     }
   };
 
+  activateEasterEgg = () => {
+    this.setState({easterEggCounter: this.state.easterEggCounter+1});
+    if(this.state.easterEggCounter >= 10){
+      this.setState({easterEggActive: true});
+    }
+  }
+
   render() {
     let { image } = this.state;
     return (
@@ -306,26 +315,24 @@ export default class WriteArticle extends Component {
             value={this.state.value}
             onChange={this.onChange.bind(this)}
           />
-          <Image
-            source={{ uri: this.state.image }}
-            style={{ alignSelf:'center', resizeMode: 'cover', height: 150, width:267, flex: 1, borderRadius:5}}
-          />
-          {/*<TouchableOpacity onPress={() => this.showLocation(_this)}>
-            <Text style={{fontSize: 20, fontWeight:'bold'}}>
-              Click me to push Google Place Picker!
-            </Text>
-          </TouchableOpacity>
-          <Text style={{color: 'black', fontSize: 15}}>
-            {JSON.stringify(this.state.location)}
-          </Text>*/}
-          <View style={{flexDirection:'row', justifyContent:'center'}}>
-            <TouchableHighlight style={styles.button} onPress={() => this.props.navigation.navigate('Camera')} underlayColor='#99d9f4'>
-              <Text style={styles.buttonText}>Take a picture</Text>
-            </TouchableHighlight>
-            <TouchableHighlight style={styles.button} onPress={this._pickImage} underlayColor='#99d9f4'>
-              <Text style={styles.buttonText}>Pick an image</Text>
-            </TouchableHighlight>
-          </View>
+          <TouchableHighlight onPress={() => this.activateEasterEgg()}>
+            <Image
+              source={{ uri: this.state.image }}
+              style={{ alignSelf:'center', resizeMode: 'cover', height: Device.height/4, width:'100%', flex: 1, borderRadius:5}}
+            />
+          </TouchableHighlight>
+          {this.state.easterEggActive ? (
+            <View style={{flexDirection:'row', justifyContent:'center'}}>
+              <TouchableHighlight style={styles.button} onPress={() => this.props.navigation.navigate('Camera')} underlayColor='#99d9f4'>
+                <Text style={styles.buttonText}>Take a picture</Text>
+              </TouchableHighlight>
+              <TouchableHighlight style={styles.button} onPress={this._pickImage} underlayColor='#99d9f4'>
+                <Text style={styles.buttonText}>Pick an image</Text>
+              </TouchableHighlight>
+            </View>
+          ):(
+            null
+          )}
         </ScrollView>
       </View>   
     );
