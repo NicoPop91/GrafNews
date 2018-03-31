@@ -55,6 +55,7 @@ import {
 import SegmentedControlTab from 'react-native-segmented-control-tab'
 import { Font, Notifications, Permissions } from 'expo';
 import DropdownAlert from 'react-native-dropdownalert';
+import { lang } from "moment";
 import Storage from 'react-native-storage';
 const Device = require("react-native-device-detection");
 const Orientation = require("../config/orientation.js");
@@ -177,8 +178,8 @@ export default class News extends Component {
     await Font.loadAsync({
       'MoonGet': require('../../assets/fonts/moon_get-Heavy.ttf'),
     });
-    this.makeLocalRemoteRequest();
-    this.makeOtherRemoteRequest();
+    this.makeRemoteRequest(true);
+    this.makeRemoteRequest();
     this.setState({ componentDidMount: true });
   }
 
@@ -218,6 +219,81 @@ export default class News extends Component {
       console.log('Error while submitting: ' + error);
     });  
   }
+
+  makeRemoteRequest = (local, category, date, loadMore, country, language) => {
+    if(date == undefined){
+      date = new Date;
+      date = date.toISOString();
+    }else{
+      date = date.toISOString();
+    }
+    if(category == undefined){
+      category = 'null';
+    }else{
+      category = "\"" + category + "\"";
+    }
+    if(country == undefined){
+      country = 'null';
+    }else{
+      country = "\"" + country + "\"";
+    }
+    if(language == undefined){
+      language = 'null';
+    }else{
+      language = "\"" + language + "\"";
+    }
+    if(local){
+      var query = '{articles(date:"'+date+'", publishedByUser:true, category:'+category+', country:'+country+', language:'+language+', lng:"'+ this.state.longitude +'", lat:"'+ this.state.latitude +'"){id author title description url urlToImage category language country publishedAt publishedByUser}}';
+    }else{
+      var query = '{articles(date:"'+date+'", publishedByUser:false, category:' + category + ', country:'+country+', language:'+language+'){id author title description url urlToImage category language country publishedAt publishedByUser}}';
+    }
+    console.log("make remote request query: " + query);
+     const fetch = createApolloFetch({
+       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+     });
+     fetch({
+       query: query,
+     })
+     .then(res => {
+       if(local){
+        if(loadMore){
+          this.setState({
+            localData: [...this.state.localData, ...res.data.articles],
+            loading: false,
+            refreshing: false
+          });
+        }else{
+          this.setState({
+            localData: res.data.articles,
+            loading: false,
+            refreshing: false,
+            lastUpdate: new Date
+          });
+        }
+       }else{
+        if(loadMore){
+          this.setState({
+            otherData: [...this.state.otherData, res.data.articles],
+            loading: false,
+            refreshing: false
+          });
+        }else{
+          this.setState({
+            otherData: res.data.articles,
+            loading: false,
+            refreshing: false,
+            lastUpdate: new Date
+          });
+        }
+       }
+     }).then(res => {
+       //console.log(this.state.localData);
+     })
+     .catch(error => {
+       this.setState({ error, loading: false });
+       console.log(error);
+     });
+   };
 
    makeLocalRemoteRequest = () => {
     var date = new Date;
@@ -426,7 +502,7 @@ export default class News extends Component {
         image: 'https://source.unsplash.com/random'
       },
       () => {
-        this.makeLocalRemoteRequest();
+        this.makeLocalRemoteRequest(true);
         this.makeOtherRemoteRequest();
       }
     );
@@ -442,11 +518,13 @@ export default class News extends Component {
           if(local){
             var date = new Date(this.state.localData[this.state.localData.length-1].publishedAt - 60000);
             console.log('Last local item: ' + date);
-            this.loadMoreMakeLocalRemoteRequest(date);
+            //this.makeRemoteRequest(true, null, date, true);
+            //this.loadMoreMakeLocalRemoteRequest(date);
           }else{
             var date = new Date(this.state.otherData[this.state.otherData.length-1].publishedAt - 60000);
             console.log('Last other item: ' + date);
-            this.loadMoreMakeOtherRemoteRequest(date);
+            //this.makeRemoteRequest(false, null, date, true);
+            //this.loadMoreMakeOtherRemoteRequest(date);
           }
         }
       }
