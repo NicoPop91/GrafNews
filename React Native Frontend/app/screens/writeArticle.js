@@ -151,6 +151,12 @@ const options = {
     category: {
       error: 'Please select on of the categories',
     },
+    date:{
+      mode: 'time',
+      config: {
+        format: (date) => moment(date).format('MMMM Do YYYY, h:mm:ss a'),
+      },
+    }
   },
 };
 

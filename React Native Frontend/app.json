@@ -1,5 +1,18 @@
 {
   "expo": {
-    "sdkVersion": "26.0.0"
+    "name": "GrafNews",
+    "description": "GrafNews provides the opportunity to read real news, but at the same time to write your own. The App is the result of an project at the DHBW Mannheim in 2018.",
+    "slug": "GrafNews",
+    "sdkVersion": "26.0.0",
+    "privacy": "unlisted",
+    "version": "0.1.0",
+    "githubUrl": "https://github.com/NicoPop91/GrafNews",
+    "icon": "./images/icon.png",
+    "ios": {
+      "bundleIdentifier": "com.GrafNews.GrafNews"
+    },
+    "android": {
+      "package": "com.GrafNews.GrafNews"
+    }
   }
 }
