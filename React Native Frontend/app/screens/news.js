@@ -188,7 +188,9 @@ export default class News extends Component {
       image: 'https://source.unsplash.com/random',
       geo: null,
       geoAvailable: false,
-      lastUpdate: new Date
+      lastUpdate: new Date,
+      localLoaded: false,
+      otherLoaded: false
     };
 
     // Event Listener for orientation changes
@@ -376,7 +378,8 @@ global.catChanged = false;
             localData: res.data.articles,
             loading: false,
             refreshing: false,
-            lastUpdate: new Date
+            lastUpdate: new Date,
+            localLoaded: true
           });
         }
        }else{
@@ -391,7 +394,8 @@ global.catChanged = false;
             otherData: res.data.articles,
             loading: false,
             refreshing: false,
-            lastUpdate: new Date
+            lastUpdate: new Date,
+            otherLoaded: true
           });
         }
        }
@@ -616,28 +620,39 @@ global.catChanged = false;
     );
   };
 
-  handleLoadMore = (local) => {
-    this.setState(
-      {
-        page: this.state.page + 1
-      },
-      () => {
-        if(this.state.componentDidMount){
-          if(local){
-            var date = new Date(this.state.localData[this.state.localData.length-1].publishedAt - 60000);
-            console.log('Last local item: ' + date);
-            //this.makeRemoteRequest(true, null, date, true);
-            //this.loadMoreMakeLocalRemoteRequest(date);
-          }else{
-            var date = new Date(this.state.otherData[this.state.otherData.length-1].publishedAt - 60000);
-            console.log('Last other item: ' + date);
-            //this.makeRemoteRequest(false, null, date, true);
-            //this.loadMoreMakeOtherRemoteRequest(date);
-          }
+  /*handleLoadMore = (local) => {
+    if(this.state.componentDidMount){
+      if(local){
+        if(this.state.localLoaded){
+          var date = this.state.localData[this.state.localData.length-1].publishedAt;
+        }else{
+          return;
         }
+        if(date == undefined){
+          return;
+        }
+        date = new Date(date);
+        date.setMinutes(date.getMinutes() - 1);
+        date = new Date(date);
+        date.toISOString();
+        this.makeRemoteRequest(true, null, date, true);
+      }else{
+        if(this.state.otherLoaded){
+          var date = this.state.otherData[this.state.otherData.length-1].publishedAt;
+        }else{
+          return;
+        }
+        if(date == undefined){
+          return;
+        }
+        date = new Date(date);
+        date.setMinutes(date.getMinutes() - 1);
+        date = new Date(date);
+        date.toISOString();
+        this.makeRemoteRequest(false, null, date, true);
       }
-    );
-  };
+    }
+  };*/
 
   handleIndexChange = (index) => {
     this.setState({
@@ -787,8 +802,8 @@ global.catChanged = false;
             keyExtractor={item => item.id}
             //ItemSeparatorComponent={this.renderSeparator}
             ListFooterComponent={this.renderFooter}
-            onEndReached={this.handleLoadMore}
-            onEndReachedThreshold={50}
+            //onEndReached={this.handleLoadMore(true)}
+            //onEndReachedThreshold={50}
           />
         </List>
         {
@@ -837,8 +852,8 @@ global.catChanged = false;
         ListFooterComponent={this.renderFooter}
         onRefresh={this.handleRefresh}
         refreshing={this.state.refreshing}
-        onEndReached={this.handleLoadMore}
-        onEndReachedThreshold={20}
+        //onEndReached={this.handleLoadMore(false)}
+        //onEndReachedThreshold={20}
       />
     </List>
     )
@@ -877,15 +892,16 @@ global.catChanged = false;
         ListFooterComponent={this.renderFooter}
         onRefresh={this.handleRefresh}
         refreshing={this.state.refreshing}
-        onEndReached={this.handleLoadMore}
-        onEndReachedThreshold={50}
+        //onEndReached={this.handleLoadMore(true)}
+        //onEndReachedThreshold={50}
       />
     </List>
     )
   }
 
   renderFooter = () => {
-    //if (!this.state.loading) return null;
+    return null;
+    /*if (!this.state.loading) return null;
     return (
       <View
         style={{
@@ -896,7 +912,7 @@ global.catChanged = false;
       >
         <ActivityIndicator animating size="large" />
       </View>
-    );
+    );*/
   };
 
   openLink = link => {
@@ -927,7 +943,7 @@ global.catChanged = false;
             <Text>Data: {JSON.stringify(this.state.notification.data)}</Text>
           </View>*/}
           {
-          this.state.componentDidMount && this.state.geoAvailable && this.state.orientation === 'portrait' && this.state.lastUpdate ? (
+          this.state.componentDidMount && this.state.geoAvailable && this.state.orientation === 'portrait' && this.state.lastUpdate && this.state.geo != null ? (
             <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'flex-start', padding: 5, backgroundColor:'rgba(220, 220, 220, 0.6)'}}>
               <Text style={{ color:'black', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 16, paddingHorizontal:10}}>
                 {this.state.geo[0].city}, {this.state.geo[0].countryCode}
@@ -936,7 +952,16 @@ global.catChanged = false;
                 {this.state.lastUpdate.toLocaleTimeString()}
               </Text>
             </View>
-            ) : null
+            ) : (
+              <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'flex-start', padding: 5, backgroundColor:'rgba(220, 220, 220, 0.6)'}}>
+                <Text style={{ color:'black', fontWeight: "bold", fontSize: 16, paddingHorizontal:10}}>
+                  Geo services are currently unavailable
+                </Text>
+                <Text style={{ color:'black', fontWeight: "bold", fontSize: 16, paddingHorizontal:10}}>
+                  {this.state.lastUpdate.toLocaleTimeString()}
+                </Text>
+              </View>
+            )
           }
           <View
             style={{

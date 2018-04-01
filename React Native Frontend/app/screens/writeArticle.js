@@ -61,6 +61,7 @@ var Article = t.struct({
   url: t.String,
   longitude: t.Number,
   latitude: t.Number,
+  adress: t.String,
   category: Category,
   language: t.maybe(Language),
   country: t.maybe(Country),
@@ -93,7 +94,8 @@ function template(locals) {
       </View>
       {/*<TouchableHighlight style={styles.button} onPress={null} underlayColor='#99d9f4'>
           <Text style={styles.buttonText}>{}</Text>
-  </TouchableHighlight>*/}
+      </TouchableHighlight>*/}
+      {locals.inputs.adress}
       {locals.inputs.category}
       {locals.inputs.language}
       {locals.inputs.country}
@@ -149,6 +151,12 @@ const options = {
     category: {
       error: 'Please select on of the categories',
     },
+    date:{
+      mode: 'time',
+      config: {
+        format: (date) => moment(date).format('MMMM Do YYYY, h:mm:ss a'),
+      },
+    }
   },
 };
 
@@ -165,7 +173,9 @@ export default class WriteArticle extends Component {
       longitude:null,
       location:null,
       easterEggCounter:0,
-      easterEggActive:false
+      easterEggActive:false,
+      error:null,
+      adress:null,
     };
     this.onPress = this.onPress.bind(this);
   }
@@ -200,8 +210,45 @@ export default class WriteArticle extends Component {
   async componentDidMount() {
     _this = this;
     this.refs.form.getComponent('title').refs.input.focus();
-    this.getGeoLocation();
+    await this.getGeoLocation();
   }
+
+  makeGeoRemoteRequest = (adress, longitude, latitude) => {
+    if(longitude && latitude){
+      var query = '{geocode(lng:"' + longitude + '", lat:"' + latitude + '"){formattedAddress latitude longitude streetName city country country countryCode zipcode provider}}';
+    } else if(adress){
+      var query = '{geocode(address:"' + adress + '"){formattedAddress latitude longitude streetName city country country countryCode zipcode provider}}';
+    }else if(!adress){
+      var query = '{geocode(lng:"' + this.state.longitude + '", lat:"' + this.state.latitude + '"){formattedAddress latitude longitude streetName city country country countryCode zipcode provider}}';
+    }
+    console.log("makeGeoRemoteRequest query:" + query);
+     const fetch = createApolloFetch({
+       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+     });
+     fetch({
+       query: query,
+     })
+     .then(res => {
+       this.setState({
+         geo: res.data.geocode,
+         adress: res.data.geocode[0].formattedAddress,
+         longitude: res.data.geocode[0].longitude,
+         latitude: res.data.geocode[0].latitude,
+       });
+     }).then(res => {
+       var value = this.state.value;
+       value.adress = this.state.adress;
+       value.longitude = this.state.longitude;
+       value.latitude = this.state.latitude;
+       console.log("Value: "+value);
+       this.onChange(value);
+       return this.state.adress;
+     })
+     .catch(error => {
+       this.setState({error});
+       console.log(error);
+     });
+   };
 
   sumbit = (value) => {
     console.log("Trying to submit " + value.author + "; " + value.title + "; " + value.text + "; " + value.url + "; " + value.urlToImage + "; " + value.category + "; " + value.language + "; " + value.country + "; " + value.date.toISOString() );
@@ -220,32 +267,17 @@ export default class WriteArticle extends Component {
     });
   };
 
-  showLocation() {
-    RNGooglePlacePicker.show((response) => {
-      if (response.didCancel) {
-        console.log('User cancelled GooglePlacePicker');
-      }
-      else if (response.error) {
-        console.log('GooglePlacePicker Error: ', response.error);
-      }
-      else {
-        this.setState({
-          location: response
-        });
-      }
-    })
-  }
-
   getGeoLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        console.log('Inside geo determination: ' + position.coords.latitude + ' ' + position.coords.longitude)
+        //console.log('Geo determination: ' + position.coords.latitude + ' ' + position.coords.longitude)
         this.setState({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           value: {
             "longitude": position.coords.longitude,
-            "latitude": position.coords.latitude
+            "latitude": position.coords.latitude,
+            //"adress":this.makeGeoRemoteRequest(null, position.coords.longitude, position.coords.latitude)
           },
           geoError: null,
         });
@@ -253,13 +285,19 @@ export default class WriteArticle extends Component {
       (error) => this.setState({ geoError: error.message }),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
-    console.log('Finish geo determination: ' + this.state.latitude + ' ' + this.state.longitude)
   };
 
-  onChange(value) {
+  async onChange(value) {
     if(value.text){
       value.text = value.text.replace(/[\r\n]+/g," ");
     }
+    if(value.adress != this.state.adress){
+      await this.makeGeoRemoteRequest(value.adress);
+    }
+    //value.adress = this.state.adress;
+    //value.longitude = this.state.longitude;
+    //value.latitude = this.state.latitude;
+    console.log("Value: "+JSON.stringify(value));
     //console.log(value);
     if(validUrl.isWebUri(value.urlToImage)){
       this.setState({ value });
