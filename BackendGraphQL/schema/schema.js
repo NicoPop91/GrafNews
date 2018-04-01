@@ -4,6 +4,7 @@ const _ = require('lodash'); //Macht "_.xxx" Syntax, Library um mit arrays, obje
 const axios = require('axios'); // Promise based HTTP client for the browser and node.js
 const mutations = require('./mutations');
 const ArticleType = require('./article_type');
+const GeoCodeResponseType = require('./geocode_type');
 const Article = mongoose.model('article');
 const {
     GraphQLDateTime
@@ -21,6 +22,19 @@ const {
     GraphQLID,
     GraphQLBoolean,
 } = graphql;
+
+const NodeGeocoder = require('node-geocoder');
+
+const options = {
+    provider: 'google',
+
+    // Optional depending on the providers
+    httpAdapter: 'https', // Default
+    apiKey: 'AIzaSyBx2m31Lm52LARlfQr70vugOYBhonwdHYo', // for Mapquest, OpenCage, Google Premier
+    formatter: null // 'gpx', 'string', ...
+};
+
+const geocoder = NodeGeocoder(options);
 
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
@@ -56,7 +70,7 @@ const RootQuery = new GraphQLObjectType({
                         publishedAt: {
                             $lte: new Date(args.date)
                         },
-                        ...(args.publishedByUser!==undefined) && {
+                        ...(args.publishedByUser !== undefined) && {
                             publishedByUser: args.publishedByUser
                         },
                         ...(args.category) && {
@@ -68,7 +82,7 @@ const RootQuery = new GraphQLObjectType({
                         ...(args.country) && {
                             country: args.country
                         },
-                        ...(args.lng&&args.lat) &&{
+                        ...(args.lng && args.lat) && {
                             "location": {
                                 "$near": {
                                     "$geometry": {
@@ -100,6 +114,47 @@ const RootQuery = new GraphQLObjectType({
                 return Article.findById(id);
             }
         },
+        geocode: {
+            type: new GraphQLList(GeoCodeResponseType),
+            args: {
+                address: {
+                    type: GraphQLString
+                },
+                lat: {
+                    type: GraphQLString
+                },
+                lng: {
+                    type: GraphQLString
+                }
+            },
+            resolve(parentValue, args) {
+                if (args.address) {
+                    return geocoder.geocode(args.address)
+                        .then(function (res) {
+                            console.log(res);
+                            return res;
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+
+                }
+                if (args.lat && args.lng) {
+                    return geocoder.reverse({
+                            lat: args.lat,
+                            lon: args.lng
+                        })
+                        .then(function (res) {
+                            console.log(res);
+                            return res;
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+
+                }
+            }
+        }
     })
 });
 

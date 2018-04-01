@@ -39,7 +39,7 @@ import {
   isIphoneX
 } from "react-native-device-detection";
 import Geocoder from 'react-native-geocoder';
-import CheckBox from 'react-native-check-box';
+import CheckBox from 'react-native-checkbox';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 import Storage from 'react-native-storage';
 const Device = require("react-native-device-detection");
