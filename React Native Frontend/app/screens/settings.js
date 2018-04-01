@@ -165,7 +165,205 @@ export default class Settings extends Component {
     }
   }
 
+  renderDevInfo = () => {
+    return(
+      <ScrollView>
+        <View style={{marginBottom: 50}}>
+          <View style={{ marginTop: 20, marginLeft: 20 }}>
+            <Text style={{ paddingBottom: 10, fontWeight: "bold", fontSize: 26 }}>
+              systeminfo
+            </Text>
+            <Text>operating system: {this.state.os}</Text>
+            <Text>device type: {this.state.devicetype}</Text>
+            <Text>device orientation: {this.state.orientation}</Text>
+            <Text>height: {this.state.height}</Text>
+            <Text>width: {this.state.width}</Text>
+            <Text>iPhoneX: {this.state.iPhoneX}</Text>
+          </View>
+  
+          <View style={{ marginTop: 20, marginLeft: 20 }}>
+            <Text style={{ paddingBottom: 10, fontWeight: "bold", fontSize: 26 }}>
+              geolocation
+            </Text>
+            <Text>latitude: {this.state.latitude}</Text>
+            <Text>longitude: {this.state.longitude}</Text>
+            <Text>address: {this.state.geolocation}</Text>
+          </View>
+
+          <View style={{ marginTop: 20, marginLeft: 20 }}>
+            <Text style={{ paddingBottom: 10, fontWeight: "bold", fontSize: 26 }}>
+              serverdata
+            </Text>
+            <Text>url: {global.serverurl}</Text>
+          </View>
+          </View>
+        </ScrollView>
+    )
+  }
+
+  renderPickersTabletLandscape = () => {
+    return(
+      <ScrollView>
+        <View style={{marginBottom: 50}}>
+                <View style={{ marginTop: 10, marginLeft: 20, marginRight: 20}}>
+                <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 0}}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
+                Categories
+              </Text>
+            </View>
+            <View>
+                    <Picker
+                      selectedValue={this.state.category}
+                      onValueChange={(itemValue, itemIndex) => {
+                        this.setState({category: itemValue});
+                        global.category = itemValue;
+                        this.refreshCategory(itemValue);
+                      }}
+                      style={{borderWidth: 0.4, borderRadius: 4, marginTop: 5, height: 100}}
+                      itemStyle={{height: 100}}>
+                      <Picker.Item label="General" value="general" />
+                      <Picker.Item label="Business" value="business" />
+                      <Picker.Item label="Entertainment" value="entertainment" />
+                      <Picker.Item label="Health" value="health" />
+                      <Picker.Item label="Science" value="science" />
+                      <Picker.Item label="Sport" value="sport" />
+                      <Picker.Item label="Technology" value="technology" />
+                    </Picker>
+                    </View>
+                  </View>
+                  <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
+                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
+                Country
+              </Text>
+            </View>
+            <View>
+                    <Picker
+                      selectedValue={this.state.country}
+                      onValueChange={(itemValue, itemIndex) => {
+                        this.setState({country: itemValue});
+                        global.country = itemValue;
+                        this.refreshCountry(itemValue);
+                      }}
+                      style={{borderWidth: 0.4, borderRadius: 4, marginTop: 5, height: 100}}
+                      itemStyle={{height: 100}}>
+                      <Picker.Item label="All" value="" />
+                      <Picker.Item label="Germany" value="de" />
+                      <Picker.Item label="England" value="en" />
+                      <Picker.Item label="USA" value="us" />
+                    </Picker>
+                    </View>
+                  </View>
+                  <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
+                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
+                Language
+              </Text>
+            </View>
+            <View>
+                    <Picker
+                      selectedValue={this.state.language}
+                      onValueChange={(itemValue, itemIndex) => {
+                        this.setState({language: itemValue});
+                        global.language = itemValue;
+                        this.refreshLanguage(itemValue);
+                      }}
+                      style={{borderWidth: 0.4, borderRadius: 4, marginTop: 5, height: 100}}
+                      itemStyle={{height: 100}}
+                      mode='dropdown'>
+                      <Picker.Item label="All" value="" />
+                      <Picker.Item label="German" value="de" />
+                      <Picker.Item label="English" value="en" />
+                    </Picker>
+                    </View>
+                  </View>
+                  </View>
+              </ScrollView>
+    )
+  }
+
+  renderPickers = () => {
+    return(
+      <ScrollView>
+        <View style={{marginBottom: 50}}>
+                <View style={{ marginTop: 5, marginLeft: 20, marginRight: 20}}>
+                <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
+                Categories
+              </Text>
+            </View>
+            <View>
+                    <Picker
+                      selectedValue={this.state.category}
+                      onValueChange={(itemValue, itemIndex) => {
+                        this.setState({category: itemValue});
+                        global.category = itemValue;
+                        this.refreshCategory(itemValue);
+                      }}
+                      style={{borderWidth: 0.4, borderRadius: 4, marginTop: 5}}
+                      mode='dropdown'>
+                      <Picker.Item label="General" value="general" />
+                      <Picker.Item label="Business" value="business" />
+                      <Picker.Item label="Entertainment" value="entertainment" />
+                      <Picker.Item label="Health" value="health" />
+                      <Picker.Item label="Science" value="science" />
+                      <Picker.Item label="Sport" value="sport" />
+                      <Picker.Item label="Technology" value="technology" />
+                    </Picker>
+                    </View>
+                  </View>
+                  <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
+                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
+                Country
+              </Text>
+            </View>
+            <View>
+                    <Picker
+                      selectedValue={this.state.country}
+                      onValueChange={(itemValue, itemIndex) => {
+                        this.setState({country: itemValue});
+                        global.country = itemValue;
+                        this.refreshCountry(itemValue);
+                      }}
+                      style={{borderWidth: 0.4, borderRadius: 4, marginTop: 5}}
+                      mode='dropdown'>
+                      <Picker.Item label="All" value="" />
+                      <Picker.Item label="Germany" value="de" />
+                      <Picker.Item label="England" value="en" />
+                      <Picker.Item label="USA" value="us" />
+                    </Picker>
+                    </View>
+                  </View>
+                  <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
+                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
+                Language
+              </Text>
+            </View>
+            <View>
+                    <Picker
+                      selectedValue={this.state.language}
+                      onValueChange={(itemValue, itemIndex) => {
+                        this.setState({language: itemValue});
+                        global.language = itemValue;
+                        this.refreshLanguage(itemValue);
+                      }}
+                      style={{borderWidth: 0.4, borderRadius: 4, marginTop: 5}}
+                      mode='dropdown'>
+                      <Picker.Item label="All" value="" />
+                      <Picker.Item label="German" value="de" />
+                      <Picker.Item label="English" value="en" />
+                    </Picker>
+                    </View>
+                  </View>
+                  </View>
+              </ScrollView>
+    )
+  }
+
   render() {
+    if (this.state.orientation === 'portrait' || this.state.devicetype === 'phone') {
     return (
       <View>
       {
@@ -182,124 +380,45 @@ export default class Settings extends Component {
                 tabsContainerStyle={{padding:5}}
               />
               {this.state.selectedTab === 0 ? (
-
-              <View>
-                <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20}}>
-                <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                Categories
-              </Text>
-            </View>
-            <View>
-                    <Picker
-                      selectedValue={this.state.category}
-                      onValueChange={(itemValue, itemIndex) => {
-                        this.setState({category: itemValue});
-                        global.category = itemValue;
-                        this.refreshCategory(itemValue);
-                      }}>
-                      <Picker.Item label="General" value="general" />
-                      <Picker.Item label="Business" value="business" />
-                      <Picker.Item label="Entertainment" value="entertainment" />
-                      <Picker.Item label="Health" value="health" />
-                      <Picker.Item label="Science" value="science" />
-                      <Picker.Item label="Sport" value="sport" />
-                      <Picker.Item label="Technology" value="technology" />
-                    </Picker>
-                    </View>
-                    <View
-                      style={{
-                      paddingVertical: 5,
-                      borderTopWidth: 1,
-                      borderColor: "#CED0CE"
-                    }}
-                    >
-                  </View>
-                  </View>
-                  <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
-                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                Country
-              </Text>
-            </View>
-            <View>
-                    <Picker
-                      selectedValue={this.state.country}
-                      onValueChange={(itemValue, itemIndex) => {
-                        this.setState({country: itemValue});
-                        global.country = itemValue;
-                        this.refreshCountry(itemValue);
-                      }}>
-                      <Picker.Item label="All" value="" />
-                      <Picker.Item label="Germany" value="de" />
-                      <Picker.Item label="England" value="en" />
-                      <Picker.Item label="USA" value="us" />
-                    </Picker>
-                    </View>
-                    <View
-                      style={{
-                      paddingVertical: 5,
-                      borderTopWidth: 1,
-                      borderColor: "#CED0CE"
-                    }}
-                    >
-                  </View>
-                  </View>
-                  <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
-                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                Language
-              </Text>
-            </View>
-            <View>
-                    <Picker
-                      selectedValue={this.state.language}
-                      onValueChange={(itemValue, itemIndex) => {
-                        this.setState({language: itemValue});
-                        global.language = itemValue;
-                        this.refreshLanguage(itemValue);
-                      }}>
-                      <Picker.Item label="All" value="" />
-                      <Picker.Item label="German" value="de" />
-                      <Picker.Item label="English" value="en" />
-                    </Picker>
-                    </View>
-                    <View
-                      style={{
-                      paddingVertical: 5,
-                      borderTopWidth: 1,
-                      borderColor: "#CED0CE"
-                    }}
-                    >
-                  </View>
-                  </View>
-              </View>
+                  this.renderPickers()
               ) : (
- <View>
-        <View style={{ marginTop: 20, marginLeft: 20 }}>
-          <Text style={{ paddingBottom: 10, fontWeight: "bold", fontSize: 26 }}>
-            systeminfo
-          </Text>
-          <Text>operating system: {this.state.os}</Text>
-          <Text>device type: {this.state.devicetype}</Text>
-          <Text>device orientation: {this.state.orientation}</Text>
-          <Text>height: {this.state.height}</Text>
-          <Text>width: {this.state.width}</Text>
-          <Text>iPhoneX: {this.state.iPhoneX}</Text>
-        </View>
-
-        <View style={{ marginTop: 20, marginLeft: 20 }}>
-          <Text style={{ paddingBottom: 10, fontWeight: "bold", fontSize: 26 }}>
-            geolocation
-          </Text>
-          <Text>latitude: {this.state.latitude}</Text>
-          <Text>longitude: {this.state.longitude}</Text>
-          <Text>address: {this.state.geolocation}</Text>
-        </View>
-      </View>
+                  this.renderDevInfo()
               )}
 
       </View>
-    );
+    );} else {
+      return (
+      
+        <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              flex: 1,
+              opacity: 1
+            }}
+          >
+          <View style={{ flex: 1.5}}> {this.renderPickersTabletLandscape()} </View>
+          
+          <View
+                      style={{
+                      paddingVertical: 0,
+                      borderRightWidth: 1,
+                      borderColor: "#CED0CE"
+                    }}
+                    >
+                  </View>
+          
+          <View style={{ flex: 1.0}}> 
+          <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
+                DEV Informationen
+              </Text>
+            </View>
+            {this.renderDevInfo()} 
+            </View>   
+          
+        </View>
+      );
+    }
   }
 }

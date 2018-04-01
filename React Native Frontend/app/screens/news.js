@@ -65,9 +65,12 @@ const { createApolloFetch } = require('apollo-fetch');
 
 const testImage = 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Test_card.png';
 
-global.catChanged = false;
+//global.catChanged = false;
 //global.otherNewsArray = [];
 //global.localNewsArray = [];
+
+//Aendern je nachdem wo Server
+global.serverurl = 'https://88ddfdd9.ngrok.io/graphql';
 
 global.storage = new Storage({
 	size: 1000,
@@ -185,7 +188,7 @@ export default class News extends Component {
       currentArticle: null,
       selectedTab: 0,
       notification: {},
-      image: 'https://source.unsplash.com/random',
+      image: "", //'https://source.unsplash.com/random',
       geo: null,
       geoAvailable: false,
       lastUpdate: new Date,
@@ -318,7 +321,7 @@ global.catChanged = false;
     let token = await Notifications.getExpoPushTokenAsync();
     //console.log("Trying to submit " + token );
     const fetch = createApolloFetch({
-      uri: 'https://88ddfdd9.ngrok.io/graphql',
+      uri: global.serverurl,
     });
     fetch({
       query: 'mutation {push(token:"' + token + '") { status }}'
@@ -360,7 +363,7 @@ global.catChanged = false;
     }
     console.log("make remote request query: " + query);
      const fetch = createApolloFetch({
-       uri: 'https://88ddfdd9.ngrok.io/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -374,6 +377,7 @@ global.catChanged = false;
             refreshing: false
           });
         }else{
+          console.log(res);
           this.setState({
             localData: res.data.articles,
             loading: false,
@@ -413,7 +417,7 @@ global.catChanged = false;
     var query = '{articles(date:"'+date.toISOString()+'", publishedByUser:true, lng:"'+ this.state.longitude +'", lat:"'+ this.state.latitude +'"){id author title description url urlToImage category language country publishedAt publishedByUser}}';
     console.log("makeLocalRemoteRequest query:" + query);
      const fetch = createApolloFetch({
-       uri: 'https://88ddfdd9.ngrok.io/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -438,7 +442,7 @@ global.catChanged = false;
     var query = '{articles(date:"'+date+'", publishedByUser:true, lng:"'+ this.state.longitude +'", lat:"'+ this.state.latitude +'"){id author title description url urlToImage category language country publishedAt publishedByUser}}';
     console.log("makeLocalRemoteRequest query:" + query);
      const fetch = createApolloFetch({
-       uri: 'https://88ddfdd9.ngrok.io/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -463,7 +467,7 @@ global.catChanged = false;
     var query = '{articles(date:"'+date.toISOString()+'", publishedByUser:false){id author title description url urlToImage category language country publishedAt publishedByUser}}';
     console.log("makeOtherRemoteRequest query:" + query);
      const fetch = createApolloFetch({
-       uri: 'https://88ddfdd9.ngrok.io/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -488,7 +492,7 @@ global.catChanged = false;
     var query = '{articles(date:"'+date+'", publishedByUser:false){id author title description url urlToImage category language country publishedAt publishedByUser}}';
     console.log("makeOtherRemoteRequest query:" + query);
      const fetch = createApolloFetch({
-       uri: 'https://88ddfdd9.ngrok.io/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -513,7 +517,7 @@ global.catChanged = false;
     var query = '{geocode(lng:"' + this.state.longitude + '", lat:"' + this.state.latitude + '"){formattedAddress latitude longitude streetName city country country countryCode zipcode provider}}';
     console.log("makeGeoRemoteRequest query:" + query);
      const fetch = createApolloFetch({
-       uri: 'https://88ddfdd9.ngrok.io/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -860,6 +864,7 @@ global.catChanged = false;
   }
 
   renderLandscapeList = (columns, data) => {
+
     return(
     <List
       containerStyle={{
