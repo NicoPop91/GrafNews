@@ -16,7 +16,8 @@ import {
   ActivityIndicator,
   Platform,
   TouchableWithoutFeedback,
-  AsyncStorage
+  AsyncStorage,
+  Picker
 } from "react-native";
 import {
   List,
@@ -45,6 +46,7 @@ const Device = require("react-native-device-detection");
 const Orientation = require("../config/orientation.js");
 
 export default class Settings extends Component {
+  
   constructor(props) {
     super(props);
 
@@ -60,7 +62,10 @@ export default class Settings extends Component {
       longitude: null,
       geolocation: null,
       geoError: null,
-      selectedTab: 0
+      selectedTab: 0,
+      category: global.category,
+      country: global.country,
+      language: global.language
     };
 
     Dimensions.addEventListener("change", () => {
@@ -115,20 +120,48 @@ export default class Settings extends Component {
     });
   }
 
-  refreshStorageData = (data) => {
+  /*refreshStorageData = (data) => {
     try {
       console.log(data);
       storage.save({
-        key: 'subscriptions',   // Note: Do not use underscore("_") in key!
+        key: 'subscriptions',
         data: data,
-        
-        // if not specified, the defaultExpires will be applied instead.
-        // if set to null, then it will never expire.
         expires: null
       });
-      //AsyncStorage.setItem('subscriptions', data);
     } catch (error) {
-      // Error saving data
+    }
+  }*/
+
+  refreshCategory = (data) => {
+    try {
+      storage.save({
+        key: 'category',
+        data: data,
+        expires: null
+      });
+    } catch (error) {
+    }
+  }
+
+  refreshLanguage = (data) => {
+    try {
+      storage.save({
+        key: 'language',
+        data: data,
+        expires: null
+      });
+    } catch (error) {
+    }
+  }
+
+  refreshCountry = (data) => {
+    try {
+      storage.save({
+        key: 'country',
+        data: data,
+        expires: null
+      });
+    } catch (error) {
     }
   }
 
@@ -149,31 +182,30 @@ export default class Settings extends Component {
                 tabsContainerStyle={{padding:5}}
               />
               {this.state.selectedTab === 0 ? (
-        <List
-          containerStyle={{
-            borderTopWidth: 0,
-            borderBottomWidth: 0,
-            marginTop: 10,
-            backgroundColor: 'transparent'
-          }}
-        >
-          <FlatList
-            data={global.categories}
-            numColumns={1}
-            renderItem={({ item }) => (
-              <TouchableWithoutFeedback>
-                 <View style={{flex:1, marginLeft:25, marginRight:25, marginVertical:10, flexDirection: 'column', borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
-                    <View style={{flex:1, justifyContent: 'center', paddingLeft: 10}}>
-                    <CheckBox
-                      style={{flex: 1, padding: 10}}
-                      onClick={ () => {
-                        item.subscribed = !item.subscribed;
-                        this.refreshStorageData(global.categories);
-                        global.catChanged = true;
-                      }}
-                      isChecked={item.subscribed}
-                      leftText={item.cat}
-                    />
+
+              <View>
+                <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20}}>
+                <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
+                Categories
+              </Text>
+            </View>
+            <View>
+                    <Picker
+                      selectedValue={this.state.category}
+                      onValueChange={(itemValue, itemIndex) => {
+                        this.setState({category: itemValue});
+                        global.category = itemValue;
+                        this.refreshCategory(itemValue);
+                      }}>
+                      <Picker.Item label="General" value="general" />
+                      <Picker.Item label="Business" value="business" />
+                      <Picker.Item label="Entertainment" value="entertainment" />
+                      <Picker.Item label="Health" value="health" />
+                      <Picker.Item label="Science" value="science" />
+                      <Picker.Item label="Sport" value="sport" />
+                      <Picker.Item label="Technology" value="technology" />
+                    </Picker>
                     </View>
                     <View
                       style={{
@@ -183,12 +215,65 @@ export default class Settings extends Component {
                     }}
                     >
                   </View>
-                 </View>
-              </TouchableWithoutFeedback>
-            )}
-            keyExtractor={item => item.id}
-          />
-        </List>
+                  </View>
+                  <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
+                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
+                Country
+              </Text>
+            </View>
+            <View>
+                    <Picker
+                      selectedValue={this.state.country}
+                      onValueChange={(itemValue, itemIndex) => {
+                        this.setState({country: itemValue});
+                        global.country = itemValue;
+                        this.refreshCountry(itemValue);
+                      }}>
+                      <Picker.Item label="All" value="" />
+                      <Picker.Item label="Germany" value="de" />
+                      <Picker.Item label="England" value="en" />
+                      <Picker.Item label="USA" value="us" />
+                    </Picker>
+                    </View>
+                    <View
+                      style={{
+                      paddingVertical: 5,
+                      borderTopWidth: 1,
+                      borderColor: "#CED0CE"
+                    }}
+                    >
+                  </View>
+                  </View>
+                  <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
+                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
+              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
+                Language
+              </Text>
+            </View>
+            <View>
+                    <Picker
+                      selectedValue={this.state.language}
+                      onValueChange={(itemValue, itemIndex) => {
+                        this.setState({language: itemValue});
+                        global.language = itemValue;
+                        this.refreshLanguage(itemValue);
+                      }}>
+                      <Picker.Item label="All" value="" />
+                      <Picker.Item label="German" value="de" />
+                      <Picker.Item label="English" value="en" />
+                    </Picker>
+                    </View>
+                    <View
+                      style={{
+                      paddingVertical: 5,
+                      borderTopWidth: 1,
+                      borderColor: "#CED0CE"
+                    }}
+                    >
+                  </View>
+                  </View>
+              </View>
               ) : (
  <View>
         <View style={{ marginTop: 20, marginLeft: 20 }}>

@@ -45,6 +45,7 @@
     "react-native-is-iphonex": "^1.0.1",
     "react-native-segmented-control-tab": "^3.2.2",
     "react-native-share": "^1.0.27",
+    "react-native-simple-toast": "0.0.8",
     "react-native-ui-kitten": "^3.0.0",
     "react-native-vector-icons": "^4.5.0",
     "react-navigation": "1.5.8",
