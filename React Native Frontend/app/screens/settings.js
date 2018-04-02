@@ -523,7 +523,7 @@ export default class Settings extends Component {
               style={{
                 flexDirection: "row",
                 justifyContent: "space-between",
-                paddingHorizontal: ,
+                paddingHorizontal: 20,
                 paddingTop: 20
               }}
             >
