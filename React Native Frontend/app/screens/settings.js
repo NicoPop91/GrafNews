@@ -187,7 +187,6 @@ export default class Settings extends Component {
             </Text>
             <Text>latitude: {this.state.latitude}</Text>
             <Text>longitude: {this.state.longitude}</Text>
-            <Text>address: {this.state.geolocation}</Text>
           </View>
 
           <View style={{ marginTop: 20, marginLeft: 20 }}>
@@ -206,11 +205,13 @@ export default class Settings extends Component {
       <ScrollView>
         <View style={{marginBottom: 50}}>
                 <View style={{ marginTop: 10, marginLeft: 20, marginRight: 20}}>
-                <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 0}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                Categories
-              </Text>
-            </View>
+                <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 3, paddingTop: 10}}>
+                 <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}> 
+                 <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10}}>
+                  Categories 
+                  </Text> 
+                  </View> 
+                  </View>
             <View>
                     <Picker
                       selectedValue={this.state.category}
@@ -232,11 +233,13 @@ export default class Settings extends Component {
                     </View>
                   </View>
                   <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
-                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                Country
-              </Text>
-            </View>
+                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 3, paddingTop: 10}}>
+                 <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}> 
+                 <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10}}>
+                  Country
+                  </Text> 
+                  </View> 
+                  </View>
             <View>
                     <Picker
                       selectedValue={this.state.country}
@@ -255,11 +258,13 @@ export default class Settings extends Component {
                     </View>
                   </View>
                   <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
-                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                Language
-              </Text>
-            </View>
+                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 3, paddingTop: 10}}>
+                 <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}> 
+                 <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10}}>
+                  Language 
+                  </Text> 
+                  </View> 
+                  </View>
             <View>
                     <Picker
                       selectedValue={this.state.language}
@@ -287,11 +292,15 @@ export default class Settings extends Component {
       <ScrollView>
         <View style={{marginBottom: 50}}>
                 <View style={{ marginTop: 5, marginLeft: 20, marginRight: 20}}>
-                <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                Categories
-              </Text>
-            </View>
+
+                <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 3, paddingTop: 10}}>
+                 <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}> 
+                 <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10}}>
+                  Categories 
+                  </Text> 
+                  </View> 
+                  </View>
+                  
             <View>
                     <Picker
                       selectedValue={this.state.category}
@@ -313,11 +322,15 @@ export default class Settings extends Component {
                     </View>
                   </View>
                   <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
-                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                Country
-              </Text>
-            </View>
+
+                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 3, paddingTop: 10}}>
+                 <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}> 
+                 <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10}}>
+                  Country
+                  </Text> 
+                  </View> 
+                  </View>
+
             <View>
                     <Picker
                       selectedValue={this.state.country}
@@ -336,11 +349,13 @@ export default class Settings extends Component {
                     </View>
                   </View>
                   <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
-                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                Language
-              </Text>
-            </View>
+                  <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 3, paddingTop: 10}}>
+                 <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}> 
+                 <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10}}>
+                  Language 
+                  </Text> 
+                  </View> 
+                  </View>
             <View>
                     <Picker
                       selectedValue={this.state.language}
@@ -409,11 +424,13 @@ export default class Settings extends Component {
                   </View>
           
           <View style={{ flex: 1.0}}> 
-          <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                DEV Informationen
-              </Text>
-            </View>
+          <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 3, paddingTop: 20}}>
+                 <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}> 
+                 <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10}}>
+                  DEV Information 
+                  </Text> 
+                  </View> 
+                  </View>
             {this.renderDevInfo()} 
             </View>   
           
