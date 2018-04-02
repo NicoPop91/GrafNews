@@ -201,24 +201,33 @@ export default class News extends Component {
       this.setState({
         orientation: Orientation.isPortrait() ? "portrait" : "landscape"
       });
+      
       dimensions = Dimensions.get("window");
       this.forceUpdate();
     });
   }
 
   static navigationOptions = ({ navigation }) => {
-    return {
-        title: 'Write Article',
-        headerRight: (
-            <Icon
-              name="message"
-              onPress={() => navigation.navigate('WriteArticle')}
-              color="#007AFF"
-            />
-        ),
-    }
-  };
+  //  if(!Device.isIos && !Orientation.isPortrait()) {
+  //    return {
+  //      header: null
 
+  //  }
+    
+  //} else {
+    return {
+      title: 'Write Article',
+      headerRight: (
+          <Icon
+            name="message"
+            onPress={() => navigation.navigate('WriteArticle')}
+            color="#007AFF"
+          />
+      )
+      
+  }
+  //}
+  }
   async componentDidMount() {
 
     await this.getGeoLocation();
