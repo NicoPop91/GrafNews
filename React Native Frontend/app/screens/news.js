@@ -1030,11 +1030,13 @@ global.catChanged = false;
             }
             {
               this.state.orientation === 'landscape' && this.state.currentArticle === null && this.state.componentDidMount ? (
-                <View style={{flex:1.5, justifyContent:'center', alignItems:'center'}}>
-                  <Text style={{color:'white', textAlign:'center', justifyContent:'center', alignItems:'center', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 16, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                    Select an article from the list to read it
-                  </Text>
-                </View>
+                <View style={{flex: 1.5, flexDirection:'row', justifyContent:'center', paddingHorizontal: 3, paddingTop: 10, alignItems: 'center'}}>
+                <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}> 
+                <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 16, paddingHorizontal:10, textAlign: 'center'}}>
+                Select an article from the list to read it
+                 </Text> 
+                 </View> 
+                 </View>
               ) : null
             }
           </View>   
