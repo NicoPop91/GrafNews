@@ -52,7 +52,7 @@ import {
   isTablet,
   isIphoneX
 } from "react-native-device-detection";
-import SegmentedControlTab from 'react-native-segmented-control-tab'
+import SegmentedControlTab from 'react-native-segmented-control-tab';
 import { Font, Notifications, Permissions } from 'expo';
 import DropdownAlert from 'react-native-dropdownalert';
 import { lang } from "moment";
@@ -65,32 +65,23 @@ const { createApolloFetch } = require('apollo-fetch');
 
 const testImage = 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Test_card.png';
 
-global.catChanged = false;
+//global.catChanged = false;
+//global.otherNewsArray = [];
+//global.localNewsArray = [];
+
+//Aendern je nachdem wo Server
+global.serverurl = 'https://88ddfdd9.ngrok.io/graphql';
 
 global.storage = new Storage({
-	// maximum capacity, default 1000 
 	size: 1000,
-
-	// Use AsyncStorage for RN, or window.localStorage for web.
-	// If not set, data would be lost after reload.
 	storageBackend: AsyncStorage,
-	
-	// expire time, default 1 day(1000 * 3600 * 24 milliseconds).
-	// can be null, which means never expire.
 	defaultExpires: null,
-	
-	// cache data in the memory. default is true.
 	enableCache: true,
-	
-	// if data was not found in storage or expired,
-	// the corresponding sync method will be invoked and return 
-	// the latest data.
 	sync : {
-		// we'll talk about the details later.
 	}
 });
 
-global.getCurrentCategories = () => {
+/*global.getCurrentCategories = () => {
   storage.load({
     key: 'subscriptions',
     autoSync: true,
@@ -105,19 +96,75 @@ global.getCurrentCategories = () => {
     global.categories = ret;
   }).catch(err => {
     global.categories = [
-      {"id": 1, "cat": "General", "subscribed": true},
-      {"id": 2, "cat": "Business", "subscribed": false},
-      {"id": 3, "cat": "Entertainment", "subscribed": false},
-      {"id": 4, "cat": "Health", "subscribed": false},
-      {"id": 5, "cat": "Science", "subscribed": false},
-      {"id": 6, "cat": "Sports", "subscribed": false},
-      {"id": 7, "cat": "Technology", "subscribed": false}
+      {"id": 1, "cat": "general", "subscribed": true},
+      {"id": 2, "cat": "business", "subscribed": false},
+      {"id": 3, "cat": "entertainment", "subscribed": false},
+      {"id": 4, "cat": "health", "subscribed": false},
+      {"id": 5, "cat": "science", "subscribed": false},
+      {"id": 6, "cat": "sports", "subscribed": false},
+      {"id": 7, "cat": "technology", "subscribed": false}
       ];
+  })
+}*/
+
+global.getCurrentCategory = () => {
+  storage.load({
+    key: 'category',
+    autoSync: true,
+    syncInBackground: true,
+    syncParams: {
+      extraFetchOptions: {
+      },
+      someFlag: true,
+    },
+  }).then(ret => {
+    console.log(ret);
+    global.category = ret;
+  }).catch(err => {
+    global.category = 'general';
   })
 }
 
-if(global.categories === undefined) {
-  global.getCurrentCategories(); 
+global.getCurrentLanguage = () => {
+  storage.load({
+    key: 'language',
+    autoSync: true,
+    syncInBackground: true,
+    syncParams: {
+      extraFetchOptions: {
+      },
+      someFlag: true,
+    },
+  }).then(ret => {
+    console.log(ret);
+    global.language = ret;
+  }).catch(err => {
+    global.language = "";
+  })
+}
+
+global.getCurrentCountry = () => {
+  storage.load({
+    key: 'country',
+    autoSync: true,
+    syncInBackground: true,
+    syncParams: {
+      extraFetchOptions: {
+      },
+      someFlag: true,
+    },
+  }).then(ret => {
+    console.log(ret);
+    global.country = ret;
+  }).catch(err => {
+    global.country = "";
+  })
+}
+
+if(global.category === undefined) {
+  global.getCurrentCategory(); 
+  global.getCurrentCountry();
+  global.getCurrentLanguage();
 }
 
 
@@ -141,7 +188,7 @@ export default class News extends Component {
       currentArticle: null,
       selectedTab: 0,
       notification: {},
-      image: 'https://source.unsplash.com/random',
+      image: "", //'https://source.unsplash.com/random',
       geo: null,
       geoAvailable: false,
       lastUpdate: new Date,
@@ -173,6 +220,7 @@ export default class News extends Component {
   };
 
   async componentDidMount() {
+
     await this.getGeoLocation();
     await Font.loadAsync({
       'OldLondon': require('../../assets/fonts/OldLondon.ttf'),
@@ -180,9 +228,73 @@ export default class News extends Component {
     await Font.loadAsync({
       'MoonGet': require('../../assets/fonts/moon_get-Heavy.ttf'),
     });
-    this.makeRemoteRequest(true);
-    this.makeRemoteRequest();
+    this.reloadNews();
     this.setState({ componentDidMount: true });
+  }
+
+  async reloadNews () {
+      //var loadedSomeNews = false;
+      //for (var i = 0; i < global.categories.length; i++) {
+        //if(global.categories[i].subscribed === true) {
+          await this.makeRemoteRequest(true, global.category, global.country, global.language);
+          await this.makeRemoteRequest(false, global.category, global.country, global.language);
+          //await this.makeRemoteRequest(true, global.categories[i].cat);
+          //await this.makeRemoteRequest(false, global.categories[i].cat);
+          //await this.makeRemoteRequestData(true, global.categories[i].cat);
+          //await this.makeRemoteRequestData(false, global.categories[i].cat);
+        //} //END if
+        //if(!loadedSomeNews) {
+          //await this.makeRemoteRequest(true, 'global.categories[i].cat');
+          //await this.makeRemoteRequest(false, global.categories[i].cat);
+        //}
+      //} //END for
+
+      /*var otherNewsJSON = [];
+      var localNewsJSON = [];
+
+    console.log("CHECK2" + "\n" + JSON.stringify(global.otherNewsArray) + "\n");
+    console.log("CHECK3" + "\n" + JSON.stringify(global.localNewsArray) + "\n");
+
+for (var j = 0; j < global.otherNewsArray.length; j++) {
+  otherNewsJSON.push(global.otherNewsArray[j].data.articles);
+}
+
+for (var k = 0; k < global.localNewsArray.length; k++) {
+  localNewsJSON.push(global.localNewsArray[k].data.articles);
+}
+
+console.log("Verarbeitete OtherNews " + JSON.stringify(otherNewsJSON));
+
+function custom_sort(a, b) {
+  a = new Date(a.publishedAt);
+  b = new Date(b.publishedAt);
+  return a>b ? -1 : a<b ? 1 : 0;
+}
+
+otherNewsJSON.sort(custom_sort);
+localNewsJSON.sort(custom_sort);
+
+this.setState({
+  localData: localNewsJSON,
+  loading: false,
+  refreshing: false,
+  lastUpdate: new Date
+});
+
+this.setState({
+  localData: otherNewsJSON,
+  loading: false,
+  refreshing: false,
+  lastUpdate: new Date
+});
+
+global.otherNewsArray = new Array();
+global.localNewsArray = new Array();
+global.catChanged = false;
+    loadedSomeNews = true;
+
+    */
+
   }
 
   componentWillMount() {
@@ -209,7 +321,7 @@ export default class News extends Component {
     let token = await Notifications.getExpoPushTokenAsync();
     //console.log("Trying to submit " + token );
     const fetch = createApolloFetch({
-      uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+      uri: global.serverurl,
     });
     fetch({
       query: 'mutation {push(token:"' + token + '") { status }}'
@@ -222,7 +334,7 @@ export default class News extends Component {
     });  
   }
 
-  makeRemoteRequest = (local, category, date, loadMore, country, language) => {
+  makeRemoteRequest = (local, category, country, language, date, loadMore) => {
     if(date == undefined){
       date = new Date;
       date = date.toISOString();
@@ -234,12 +346,12 @@ export default class News extends Component {
     }else{
       category = "\"" + category + "\"";
     }
-    if(country == undefined){
+    if(country == undefined || country === ""){
       country = 'null';
     }else{
       country = "\"" + country + "\"";
     }
-    if(language == undefined){
+    if(language == undefined || language === ""){
       language = 'null';
     }else{
       language = "\"" + language + "\"";
@@ -251,7 +363,7 @@ export default class News extends Component {
     }
     console.log("make remote request query: " + query);
      const fetch = createApolloFetch({
-       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -265,6 +377,7 @@ export default class News extends Component {
             refreshing: false
           });
         }else{
+          console.log(res);
           this.setState({
             localData: res.data.articles,
             loading: false,
@@ -304,7 +417,7 @@ export default class News extends Component {
     var query = '{articles(date:"'+date.toISOString()+'", publishedByUser:true, lng:"'+ this.state.longitude +'", lat:"'+ this.state.latitude +'"){id author title description url urlToImage category language country publishedAt publishedByUser}}';
     console.log("makeLocalRemoteRequest query:" + query);
      const fetch = createApolloFetch({
-       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -329,7 +442,7 @@ export default class News extends Component {
     var query = '{articles(date:"'+date+'", publishedByUser:true, lng:"'+ this.state.longitude +'", lat:"'+ this.state.latitude +'"){id author title description url urlToImage category language country publishedAt publishedByUser}}';
     console.log("makeLocalRemoteRequest query:" + query);
      const fetch = createApolloFetch({
-       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -354,7 +467,7 @@ export default class News extends Component {
     var query = '{articles(date:"'+date.toISOString()+'", publishedByUser:false){id author title description url urlToImage category language country publishedAt publishedByUser}}';
     console.log("makeOtherRemoteRequest query:" + query);
      const fetch = createApolloFetch({
-       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -379,7 +492,7 @@ export default class News extends Component {
     var query = '{articles(date:"'+date+'", publishedByUser:false){id author title description url urlToImage category language country publishedAt publishedByUser}}';
     console.log("makeOtherRemoteRequest query:" + query);
      const fetch = createApolloFetch({
-       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -404,7 +517,7 @@ export default class News extends Component {
     var query = '{geocode(lng:"' + this.state.longitude + '", lat:"' + this.state.latitude + '"){formattedAddress latitude longitude streetName city country country countryCode zipcode provider}}';
     console.log("makeGeoRemoteRequest query:" + query);
      const fetch = createApolloFetch({
-       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -506,8 +619,7 @@ export default class News extends Component {
         image: 'https://source.unsplash.com/random'
       },
       () => {
-        this.makeRemoteRequest(true);
-        this.makeRemoteRequest(false);
+        this.reloadNews();
       }
     );
   };
@@ -752,6 +864,7 @@ export default class News extends Component {
   }
 
   renderLandscapeList = (columns, data) => {
+
     return(
     <List
       containerStyle={{
