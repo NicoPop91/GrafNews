@@ -10,6 +10,7 @@ import {
   Platform,
   CameraRoll,
   TouchableHighlight,
+  TouchableWithoutFeedback,
   Image,
   Picker,
   ScrollView
@@ -25,6 +26,9 @@ var validUrl = require('valid-url');
 import t from 'tcomb-form-native';
 import { ImagePicker } from 'expo';
 const Device = require("react-native-device-detection");
+
+let _this = null;
+const testImage= 'https://source.unsplash.com/random';
 
 const Form = t.form.Form;
 
@@ -92,10 +96,16 @@ function template(locals) {
           {locals.inputs.latitude}
         </View>
       </View>
-      {/*<TouchableHighlight style={styles.button} onPress={null} underlayColor='#99d9f4'>
-          <Text style={styles.buttonText}>{}</Text>
-      </TouchableHighlight>*/}
-      {locals.inputs.adress}
+      <View style={{flexDirection: 'row'}}>
+        <View style={{flex: 4}}>
+          {locals.inputs.adress}
+        </View>
+        <View style={{flex: 1, justifyContent:'center', alignItems:'center'}}>
+          <TouchableWithoutFeedback onPress={()=>_this.handleGeo()}>
+            <Text style={{fontSize:48}}>🌍</Text>
+          </TouchableWithoutFeedback>
+        </View>
+      </View>
       {locals.inputs.category}
       {locals.inputs.language}
       {locals.inputs.country}
@@ -160,9 +170,6 @@ const options = {
   },
 };
 
-let _this = null;
-const testImage= 'https://source.unsplash.com/random';
-
 export default class WriteArticle extends Component {
   constructor(props) {
     super(props);
@@ -214,16 +221,17 @@ export default class WriteArticle extends Component {
   }
 
   makeGeoRemoteRequest = (adress, longitude, latitude) => {
-    if(longitude && latitude){
-      var query = '{geocode(lng:"' + longitude + '", lat:"' + latitude + '"){formattedAddress latitude longitude streetName city country country countryCode zipcode provider}}';
-    } else if(adress){
+    console.log("Granted values: " + adress + ", " + longitude + ", " + latitude);
+    if(adress){
       var query = '{geocode(address:"' + adress + '"){formattedAddress latitude longitude streetName city country country countryCode zipcode provider}}';
-    }else if(!adress){
+    } else if(longitude && latitude){
+      var query = '{geocode(lng:"' + longitude + '", lat:"' + latitude + '"){formattedAddress latitude longitude streetName city country country countryCode zipcode provider}}';
+    } else if(!adress){
       var query = '{geocode(lng:"' + this.state.longitude + '", lat:"' + this.state.latitude + '"){formattedAddress latitude longitude streetName city country country countryCode zipcode provider}}';
     }
     console.log("makeGeoRemoteRequest query:" + query);
      const fetch = createApolloFetch({
-       uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+       uri: global.serverurl,
      });
      fetch({
        query: query,
@@ -234,15 +242,21 @@ export default class WriteArticle extends Component {
          adress: res.data.geocode[0].formattedAddress,
          longitude: res.data.geocode[0].longitude,
          latitude: res.data.geocode[0].latitude,
+         value: {
+          "adress": res.data.geocode[0].formattedAddress,
+          "longitude": res.data.geocode[0].longitude,
+          "latitude": res.data.geocode[0].latitude,
+         },
        });
      }).then(res => {
-       var value = this.state.value;
+       console.log("Returned values: " + this.state.adress + ", " + this.state.longitude + ", " + this.state.latitude);
+       /*var value = this.state.value;
        value.adress = this.state.adress;
        value.longitude = this.state.longitude;
        value.latitude = this.state.latitude;
        console.log("Value: "+value);
        this.onChange(value);
-       return this.state.adress;
+       return this.state.adress;*/
      })
      .catch(error => {
        this.setState({error});
@@ -253,22 +267,21 @@ export default class WriteArticle extends Component {
   sumbit = (value) => {
     console.log("Trying to submit " + value.author + "; " + value.title + "; " + value.text + "; " + value.url + "; " + value.urlToImage + "; " + value.category + "; " + value.language + "; " + value.country + "; " + value.date.toISOString() );
     const fetch = createApolloFetch({
-      uri: 'http://9p7wpw3ppo75fifx.myfritz.net:4000/graphql',
+      uri: global.serverurl,
     });
     fetch({
       query: 'mutation {addArticle(author:"' + value.author + '" title:"' + value.title + '" description:"' + value.text +  '" url:"' + value.url + '" urlToImage:"' + value.urlToImage + '" category:"' + value.category + '" language:"' + value.language + '" country:"' + value.country + '" publishedAt:"' + value.date.toISOString() + '" publishedByUser:true geotype:"Point" lat:"' + value.latitude + '" lng:"' + value.longitude + '") { id }}'
     })
     .then(respnse => {
-      console.log('Article was generated with id ', respnse.data)
-      console.log('Error ', respnse.errors)
+      console.log('Article was generated with id ', respnse.data);
     })
     .catch(error => {
       console.log('Error while submitting article: ' + error);
     });
   };
 
-  getGeoLocation = () => {
-    navigator.geolocation.getCurrentPosition(
+  async getGeoLocation() {
+    await navigator.geolocation.getCurrentPosition(
       (position) => {
         //console.log('Geo determination: ' + position.coords.latitude + ' ' + position.coords.longitude)
         this.setState({
@@ -277,7 +290,6 @@ export default class WriteArticle extends Component {
           value: {
             "longitude": position.coords.longitude,
             "latitude": position.coords.latitude,
-            //"adress":this.makeGeoRemoteRequest(null, position.coords.longitude, position.coords.latitude)
           },
           geoError: null,
         });
@@ -285,15 +297,25 @@ export default class WriteArticle extends Component {
       (error) => this.setState({ geoError: error.message }),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
+    await this.handleGeo();
   };
+
+  async handleGeo() {
+    //await this.getGeoLocation();
+    await this.makeGeoRemoteRequest(this.state.value.adress||null,this.state.value.longitude||null,this.state.value.latitude||null);
+    console.log("Geo Information: \n adress: " + this.state.adress + "\n longitude: " + this.state.longitude + "\n latitude: " + this.state.latitude);
+  }
 
   async onChange(value) {
     if(value.text){
       value.text = value.text.replace(/[\r\n]+/g," ");
     }
+    /*value.adress = this.state.adress;
+    value.longitude = this.state.longitude;
+    value.latitude = this.state.latitude;
     if(value.adress != this.state.adress){
       await this.makeGeoRemoteRequest(value.adress);
-    }
+    }*/
     //value.adress = this.state.adress;
     //value.longitude = this.state.longitude;
     //value.latitude = this.state.latitude;
