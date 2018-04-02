@@ -188,7 +188,7 @@ export default class News extends Component {
       currentArticle: null,
       selectedTab: 0,
       notification: {},
-      image: "", //'https://source.unsplash.com/random',
+      image: 'https://source.unsplash.com/random',
       geo: null,
       geoAvailable: false,
       lastUpdate: new Date,
@@ -688,7 +688,7 @@ global.catChanged = false;
 
   renderLisHeaderItem = (item) => {
     return (
-      <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{backgroundColor:'red'}}>
+      <TouchableWithoutFeedback onPress={() => this.openArticle(item)} style={{}}>
         <View style={{flex:1, margin:3, borderRadius:5, shadowColor: '#000000', shadowOffset: {width: 0, height: 1}, shadowRadius: 2, shadowOpacity: 1.0}}>
           {
             item.urlToImage === null || item.urlToImage === "" ? (
@@ -785,10 +785,12 @@ global.catChanged = false;
       <View style={{}}>
         {
           this.state.componentDidMount ? (
-            <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                Fake News
-              </Text>
+            <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 3, paddingTop: 10}}>
+              <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}>
+                <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10}}>
+                  Fake News
+                </Text>
+              </View> 
             </View>
           ) : null
         }
@@ -821,10 +823,12 @@ global.catChanged = false;
         </List>
         {
           this.state.componentDidMount ? (
-            <View style={{justifyContent:'center', alignItems:'flex-start', paddingHorizontal: 5, paddingTop: 10}}>
-              <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)' }}>
-                Real News
-              </Text>
+            <View style={{flexDirection:'row', justifyContent:'space-between', paddingHorizontal: 3, paddingTop: 10}}>
+              <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}>
+                <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 24, paddingHorizontal:10}}>
+                  Real News
+                </Text>
+              </View> 
             </View>
           ) : null
         }
@@ -967,14 +971,21 @@ global.catChanged = false;
               </Text>
             </View>
             ) : (
-              <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'flex-start', padding: 5, backgroundColor:'rgba(220, 220, 220, 0.6)'}}>
-                <Text style={{ color:'black', fontWeight: "bold", fontSize: 16, paddingHorizontal:10}}>
-                  Geo services are currently unavailable
-                </Text>
-                <Text style={{ color:'black', fontWeight: "bold", fontSize: 16, paddingHorizontal:10}}>
-                  {this.state.lastUpdate.toLocaleTimeString()}
-                </Text>
-              </View>
+              null
+            )
+          }
+          {
+          this.state.componentDidMount && this.state.geoAvailable && this.state.orientation === 'portrait' && this.state.lastUpdate && this.state.geo == null ? (
+            <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'flex-start', padding: 5, backgroundColor:'rgba(220, 220, 220, 0.6)'}}>
+              <Text style={{ color:'black', fontWeight: "bold", fontSize: 16, paddingHorizontal:10}}>
+                Geo services are currently unavailable
+              </Text>
+              <Text style={{ color:'black', fontWeight: "bold", fontSize: 16, paddingHorizontal:10}}>
+                {this.state.lastUpdate.toLocaleTimeString()}
+              </Text>
+            </View>
+            ) : (
+              null
             )
           }
           <View
