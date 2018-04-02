@@ -201,24 +201,33 @@ export default class News extends Component {
       this.setState({
         orientation: Orientation.isPortrait() ? "portrait" : "landscape"
       });
+      
       dimensions = Dimensions.get("window");
       this.forceUpdate();
     });
   }
 
   static navigationOptions = ({ navigation }) => {
-    return {
-        title: 'Write Article',
-        headerRight: (
-            <Icon
-              name="message"
-              onPress={() => navigation.navigate('WriteArticle')}
-              color="#007AFF"
-            />
-        ),
-    }
-  };
+  //  if(!Device.isIos && !Orientation.isPortrait()) {
+  //    return {
+  //      header: null
 
+  //  }
+    
+  //} else {
+    return {
+      title: 'Write Article',
+      headerRight: (
+          <Icon
+            name="message"
+            onPress={() => navigation.navigate('WriteArticle')}
+            color="#007AFF"
+          />
+      )
+      
+  }
+  //}
+  }
   async componentDidMount() {
 
     await this.getGeoLocation();
@@ -1041,11 +1050,13 @@ global.catChanged = false;
             }
             {
               this.state.orientation === 'landscape' && this.state.currentArticle === null && this.state.componentDidMount ? (
-                <View style={{flex:1.5, justifyContent:'center', alignItems:'center'}}>
-                  <Text style={{color:'white', textAlign:'center', justifyContent:'center', alignItems:'center', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 16, paddingHorizontal:10, backgroundColor:'rgba(0, 0, 0, 0.6)'}}>
-                    Select an article from the list to read it
-                  </Text>
-                </View>
+                <View style={{flex: 1.5, flexDirection:'row', justifyContent:'center', paddingHorizontal: 3, paddingTop: 10, alignItems: 'center'}}>
+                <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}> 
+                <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 16, paddingHorizontal:10, textAlign: 'center'}}>
+                Select an article from the list to read it
+                 </Text> 
+                 </View> 
+                 </View>
               ) : null
             }
           </View>   
