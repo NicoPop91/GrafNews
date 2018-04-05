@@ -64,7 +64,7 @@ var Article = t.struct({
   text: t.String,
   author: t.String,
   date: t.Date,
-  url: t.String,
+  url: t.maybe(t.String),
   longitude: t.Number,
   latitude: t.Number,
   adress: t.String,
@@ -251,6 +251,15 @@ export default class WriteArticle extends Component {
           "adress": res.data.geocode[0].formattedAddress,
           "longitude": res.data.geocode[0].longitude,
           "latitude": res.data.geocode[0].latitude,
+          "title": this.state.value.title,
+          "text": this.state.value.text,
+          "author": this.state.value.author,
+          "date": this.state.value.date,
+          "url": this.state.value.url,
+          "category": this.state.value.category,
+          "language": this.state.value.language,
+          "country": this.state.value.country,
+          "urlToImage": this.state.value.urlToImage
          },
        });
      }).then(res => {
