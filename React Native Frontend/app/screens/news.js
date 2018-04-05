@@ -227,6 +227,7 @@ export default class News extends Component {
   }
   //}
   }
+  
   async componentDidMount() {
 
     await this.getGeoLocation();
@@ -585,7 +586,7 @@ global.catChanged = false;
       'Colateral collision'
     ]
     var number = Math.floor(Math.random() * (messages.length-1));
-    console.log('Message: ' + messages[number] + " " + number);
+    //console.log('Message: ' + messages[number] + " " + number);
     return messages[number];
   }
 
@@ -972,7 +973,9 @@ global.catChanged = false;
     this.setState({ currentArticle: item.url })
     //console.log('Status: ' + this.state.orientation);
     if(this.state.orientation === 'portrait'){
-      //console.log(item.url)
+      item.longitude=this.state.longitude;
+      item.latitude=this.state.latitude;
+      console.log(JSON.stringify(item));
       this.props.navigation.navigate('Details', item);
     }
   };
