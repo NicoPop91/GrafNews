@@ -13,7 +13,8 @@ import {
   TouchableWithoutFeedback,
   Image,
   Picker,
-  ScrollView
+  ScrollView,
+  Alert
 } from "react-native";
 import { Divider, Icon, Button } from "react-native-elements";
 import ViewPhotos from "./viewPhotos";
@@ -28,7 +29,8 @@ import { ImagePicker } from 'expo';
 const Device = require("react-native-device-detection");
 
 let _this = null;
-const testImage= 'https://source.unsplash.com/random';
+const testImage = 'https://source.unsplash.com/random';
+const testSite = 'https://en.wikipedia.org/wiki/Special:Random';
 
 const Form = t.form.Form;
 
@@ -102,7 +104,9 @@ function template(locals) {
         </View>
         <View style={{flex: 1, justifyContent:'center', alignItems:'center'}}>
           <TouchableWithoutFeedback onPress={()=>_this.handleGeo()}>
-            <Text style={{fontSize:48}}>🌍</Text>
+            <View>
+             <Text style={{fontSize:48}}>🌍</Text>
+            </View>
           </TouchableWithoutFeedback>
         </View>
       </View>
@@ -183,6 +187,7 @@ export default class WriteArticle extends Component {
       easterEggActive:false,
       error:null,
       adress:null,
+      site:testSite,
     };
     this.onPress = this.onPress.bind(this);
   }
@@ -265,12 +270,12 @@ export default class WriteArticle extends Component {
    };
 
   sumbit = (value) => {
-    console.log("Trying to submit " + value.author + "; " + value.title + "; " + value.text + "; " + value.url + "; " + value.urlToImage + "; " + value.category + "; " + value.language + "; " + value.country + "; " + value.date.toISOString() );
+    console.log("Trying to submit " + value.author + "; " + value.title + "; " + value.text + "; " + this.state.site + "; " + this.state.image + "; " + value.category + "; " + value.language + "; " + value.country + "; " + value.date.toISOString() );
     const fetch = createApolloFetch({
       uri: global.serverurl,
     });
     fetch({
-      query: 'mutation {addArticle(author:"' + value.author + '" title:"' + value.title + '" description:"' + value.text +  '" url:"' + value.url + '" urlToImage:"' + value.urlToImage + '" category:"' + value.category + '" language:"' + value.language + '" country:"' + value.country + '" publishedAt:"' + value.date.toISOString() + '" publishedByUser:true geotype:"Point" lat:"' + value.latitude + '" lng:"' + value.longitude + '") { id }}'
+      query: 'mutation {addArticle(author:"' + value.author + '" title:"' + value.title + '" description:"' + value.text +  '" url:"' + this.state.site + '" urlToImage:"' + this.state.image + '" category:"' + value.category + '" language:"' + value.language + '" country:"' + value.country + '" publishedAt:"' + value.date.toISOString() + '" publishedByUser:true geotype:"Point" lat:"' + value.latitude + '" lng:"' + value.longitude + '") { id }}'
     })
     .then(respnse => {
       console.log('Article was generated with id ', respnse.data);
@@ -319,15 +324,24 @@ export default class WriteArticle extends Component {
     //value.adress = this.state.adress;
     //value.longitude = this.state.longitude;
     //value.latitude = this.state.latitude;
-    console.log("Value: "+JSON.stringify(value));
-    //console.log(value);
     if(validUrl.isWebUri(value.urlToImage)){
-      this.setState({ value });
-      this.setState({ image:value.urlToImage });
+      if(validUrl.isWebUri(value.url)){
+        this.setState({ value });
+        this.setState({ image:value.urlToImage, site:value.url });
+      } else {
+        this.setState({ value });
+        this.setState({ image:value.urlToImage });
+      }
     } else {
-      value.urlToImage = testImage;
-      this.setState({ value });
+      if(validUrl.isWebUri(value.url)){
+        this.setState({ value });
+        this.setState({ site:value.url });
+      }else{
+        this.setState({ value });
+      }  
     }
+    console.log("Value: "+JSON.stringify(value));
+    console.log("Image: "+this.state.image+" Site: "+this.state.site);
   };
 
   clearForm() {

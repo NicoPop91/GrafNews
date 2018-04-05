@@ -180,6 +180,24 @@ export default class Settings extends Component {
             <Text
               style={{ paddingBottom: 10, fontWeight: "bold", fontSize: 26 }}
             >
+              serverdata
+            </Text>
+            <View>
+              <View stxle={{flex:1, flexDirection: 'row'}}>
+                <TextInput
+                  style={{flex:3, height: 40, borderColor: 'gray', borderWidth: 0.1}}
+                  onChangeText={(text) => global.serverurl = text}
+                  value={global.serverurl}
+                  placeholder={'Please enter the adress of the server'}
+                />
+              </View>
+            </View>
+          </View>
+
+          <View style={{ marginTop: 20, marginLeft: 20 }}>
+            <Text
+              style={{ paddingBottom: 10, fontWeight: "bold", fontSize: 26 }}
+            >
               systeminfo
             </Text>
             <Text>operating system: {this.state.os}</Text>
@@ -198,15 +216,6 @@ export default class Settings extends Component {
             </Text>
             <Text>latitude: {this.state.latitude}</Text>
             <Text>longitude: {this.state.longitude}</Text>
-          </View>
-
-          <View style={{ marginTop: 20, marginLeft: 20 }}>
-            <Text
-              style={{ paddingBottom: 10, fontWeight: "bold", fontSize: 26 }}
-            >
-              serverdata
-            </Text>
-            <Text>url: {global.serverurl}</Text>
           </View>
         </View>
       </ScrollView>
@@ -237,9 +246,9 @@ export default class Settings extends Component {
                   borderWidth: 0.4,
                   borderRadius: 4,
                   marginTop: 5,
-                  height: 100
+                  height: 140
                 }}
-                itemStyle={{ height: 100 }}
+                itemStyle={{ height: 140 }}
               >
                 <Picker.Item label="General" value="general" />
                 <Picker.Item label="Business" value="business" />
@@ -271,9 +280,9 @@ export default class Settings extends Component {
                   borderWidth: 0.4,
                   borderRadius: 4,
                   marginTop: 5,
-                  height: 100
+                  height: 140
                 }}
-                itemStyle={{ height: 100 }}
+                itemStyle={{ height: 140 }}
               >
                 <Picker.Item label="All" value="" />
                 <Picker.Item label="Germany" value="de" />
@@ -302,9 +311,9 @@ export default class Settings extends Component {
                   borderWidth: 0.4,
                   borderRadius: 4,
                   marginTop: 5,
-                  height: 100
+                  height: 140
                 }}
-                itemStyle={{ height: 100 }}
+                itemStyle={{ height: 140 }}
                 mode="dropdown"
               >
                 <Picker.Item label="All" value="" />
@@ -336,38 +345,75 @@ export default class Settings extends Component {
                   borderRadius: 5
                 }}
               >
-                <Text
-                  style={{
-                    color: "white",
-                    fontWeight: "bold",
-                    fontFamily: "MoonGet",
-                    fontSize: 24,
-                    paddingHorizontal: 10
-                  }}
-                >
-                  Categories
-                </Text>
+                {Device.isPhone ? (
+                  <Text
+                    style={{
+                      color: "white",
+                      fontWeight: "bold",
+                      fontFamily: "MoonGet",
+                      fontSize: 16,
+                      paddingHorizontal: 10
+                    }}
+                  >
+                    Categories
+                  </Text>
+                ):(
+                  <Text
+                    style={{
+                      color: "white",
+                      fontWeight: "bold",
+                      fontFamily: "MoonGet",
+                      fontSize: 24,
+                      paddingHorizontal: 10
+                    }}
+                  >
+                    Categories
+                  </Text>
+                )}
               </View>
             </View>
             <View>
-              <Picker
-                selectedValue={this.state.category}
-                onValueChange={(itemValue, itemIndex) => {
-                  this.setState({ category: itemValue });
-                  global.category = itemValue;
-                  this.refreshCategory(itemValue);
-                }}
-                style={{ borderWidth: 0.4, borderRadius: 4, marginTop: 5 }}
-                mode="dropdown"
-              >
-                <Picker.Item label="General" value="general" />
-                <Picker.Item label="Business" value="business" />
-                <Picker.Item label="Entertainment" value="entertainment" />
-                <Picker.Item label="Health" value="health" />
-                <Picker.Item label="Science" value="science" />
-                <Picker.Item label="Sport" value="sport" />
-                <Picker.Item label="Technology" value="technology" />
-              </Picker>
+            {Device.isPhone ? (
+                <Picker
+                  selectedValue={this.state.category}
+                  onValueChange={(itemValue, itemIndex) => {
+                    this.setState({ category: itemValue });
+                    global.category = itemValue;
+                    this.refreshCategory(itemValue);
+                  }}
+                  style={{ borderWidth: 0.4, borderRadius: 4, marginTop: 5, height:120 }}
+                  itemStyle={{ height: 120 }}
+                  mode="dropdown"
+                >
+                  <Picker.Item label="General" value="general" />
+                  <Picker.Item label="Business" value="business" />
+                  <Picker.Item label="Entertainment" value="entertainment" />
+                  <Picker.Item label="Health" value="health" />
+                  <Picker.Item label="Science" value="science" />
+                  <Picker.Item label="Sport" value="sport" />
+                  <Picker.Item label="Technology" value="technology" />
+                </Picker>
+              ) : (
+                <Picker
+                  selectedValue={this.state.category}
+                  onValueChange={(itemValue, itemIndex) => {
+                    this.setState({ category: itemValue });
+                    global.category = itemValue;
+                    this.refreshCategory(itemValue);
+                  }}
+                  style={{ borderWidth: 0.4, borderRadius: 4, marginTop: 5, height:200 }}
+                  itemStyle={{ height: 200 }}
+                  mode="dropdown"
+                >
+                  <Picker.Item label="General" value="general" />
+                  <Picker.Item label="Business" value="business" />
+                  <Picker.Item label="Entertainment" value="entertainment" />
+                  <Picker.Item label="Health" value="health" />
+                  <Picker.Item label="Science" value="science" />
+                  <Picker.Item label="Sport" value="sport" />
+                  <Picker.Item label="Technology" value="technology" />
+                </Picker>
+              )}
             </View>
           </View>
           <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
@@ -384,35 +430,69 @@ export default class Settings extends Component {
                   borderRadius: 5
                 }}
               >
-                <Text
-                  style={{
-                    color: "white",
-                    fontWeight: "bold",
-                    fontFamily: "MoonGet",
-                    fontSize: 24,
-                    paddingHorizontal: 10
-                  }}
-                >
-                  Country
-                </Text>
+                   {Device.isPhone ? (
+                  <Text
+                    style={{
+                      color: "white",
+                      fontWeight: "bold",
+                      fontFamily: "MoonGet",
+                      fontSize: 16,
+                      paddingHorizontal: 10
+                    }}
+                  >
+                    Country
+                  </Text>
+                ):(
+                  <Text
+                    style={{
+                      color: "white",
+                      fontWeight: "bold",
+                      fontFamily: "MoonGet",
+                      fontSize: 24,
+                      paddingHorizontal: 10
+                    }}
+                  >
+                    Country
+                  </Text>
+                )}
               </View>
             </View>
             <View>
-              <Picker
-                selectedValue={this.state.country}
-                onValueChange={(itemValue, itemIndex) => {
-                  this.setState({ country: itemValue });
-                  global.country = itemValue;
-                  this.refreshCountry(itemValue);
-                }}
-                style={{ borderWidth: 0.4, borderRadius: 4, marginTop: 5 }}
-                mode="dropdown"
-              >
-                <Picker.Item label="All" value="" />
-                <Picker.Item label="Germany" value="de" />
-                <Picker.Item label="England" value="en" />
-                <Picker.Item label="USA" value="us" />
-              </Picker>
+              {Device.isPhone ? (
+                <Picker
+                  selectedValue={this.state.country}
+                  onValueChange={(itemValue, itemIndex) => {
+                    this.setState({ country: itemValue });
+                    global.country = itemValue;
+                    this.refreshCountry(itemValue);
+                  }}
+                  style={{ borderWidth: 0.4, borderRadius: 4, marginTop: 5, height:120 }}
+                  itemStyle={{ height: 120 }}
+                  mode="dropdown"
+                >
+                  <Picker.Item label="All" value="" />
+                  <Picker.Item label="Germany" value="de" />
+                  <Picker.Item label="England" value="en" />
+                  <Picker.Item label="USA" value="us" />
+                </Picker>
+              ) : (
+                <Picker
+                  selectedValue={this.state.country}
+                  onValueChange={(itemValue, itemIndex) => {
+                    this.setState({ country: itemValue });
+                    global.country = itemValue;
+                    this.refreshCountry(itemValue);
+                  }}
+                  style={{ borderWidth: 0.4, borderRadius: 4, marginTop: 5, height:200 }}
+                  itemStyle={{ height: 200 }}
+                  mode="dropdown"
+                >
+                  <Picker.Item label="All" value="" />
+                  <Picker.Item label="Germany" value="de" />
+                  <Picker.Item label="England" value="en" />
+                  <Picker.Item label="USA" value="us" />
+                </Picker>
+              )}
             </View>
           </View>
           <View style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
@@ -429,34 +509,67 @@ export default class Settings extends Component {
                   borderRadius: 5
                 }}
               >
-                <Text
-                  style={{
-                    color: "white",
-                    fontWeight: "bold",
-                    fontFamily: "MoonGet",
-                    fontSize: 24,
-                    paddingHorizontal: 10
-                  }}
-                >
-                  Categories
-                </Text>
+                   {Device.isPhone ? (
+                  <Text
+                    style={{
+                      color: "white",
+                      fontWeight: "bold",
+                      fontFamily: "MoonGet",
+                      fontSize: 16,
+                      paddingHorizontal: 10
+                    }}
+                  >
+                    Language
+                  </Text>
+                ):(
+                  <Text
+                    style={{
+                      color: "white",
+                      fontWeight: "bold",
+                      fontFamily: "MoonGet",
+                      fontSize: 24,
+                      paddingHorizontal: 10
+                    }}
+                  >
+                    Language
+                  </Text>
+                )}
               </View>
             </View>
             <View>
-              <Picker
-                selectedValue={this.state.language}
-                onValueChange={(itemValue, itemIndex) => {
-                  this.setState({ language: itemValue });
-                  global.language = itemValue;
-                  this.refreshLanguage(itemValue);
-                }}
-                style={{ borderWidth: 0.4, borderRadius: 4, marginTop: 5 }}
-                mode="dropdown"
-              >
-                <Picker.Item label="All" value="" />
-                <Picker.Item label="German" value="de" />
-                <Picker.Item label="English" value="en" />
-              </Picker>
+              {Device.isPhone ? (
+                <Picker
+                  selectedValue={this.state.language}
+                  onValueChange={(itemValue, itemIndex) => {
+                    this.setState({ language: itemValue });
+                    global.language = itemValue;
+                    this.refreshLanguage(itemValue);
+                  }}
+                  style={{ borderWidth: 0.4, borderRadius: 4, marginTop: 5, height:120 }}
+                  itemStyle={{ height: 120 }}
+                  mode="dropdown"
+                >
+                  <Picker.Item label="All" value="" />
+                  <Picker.Item label="German" value="de" />
+                  <Picker.Item label="English" value="en" />
+                </Picker>
+              ) : (
+                <Picker
+                  selectedValue={this.state.language}
+                  onValueChange={(itemValue, itemIndex) => {
+                    this.setState({ language: itemValue });
+                    global.language = itemValue;
+                    this.refreshLanguage(itemValue);
+                  }}
+                  style={{ borderWidth: 0.4, borderRadius: 4, marginTop: 5, height:200 }}
+                  itemStyle={{ height: 200 }}
+                  mode="dropdown"
+                >
+                  <Picker.Item label="All" value="" />
+                  <Picker.Item label="German" value="de" />
+                  <Picker.Item label="English" value="en" />
+                </Picker>
+              )}
             </View>
           </View>
         </View>

@@ -88,7 +88,7 @@ export const Tabs = TabNavigator({
       screen: AboutStack,
       navigationOptions: {
         tabBarLabel: 'About',
-        tabBarIcon: ({ tintColor }) => <Icon name="email" size={24} color={tintColor} />,
+        tabBarIcon: ({ tintColor }) => <Icon name="email" size={24} color={tintColor}/>,
       },
     },
   },
@@ -97,5 +97,6 @@ export const Tabs = TabNavigator({
     tabBarPosition: 'bottom',
     animationEnabled: true,
     swipeEnabled: false,
-    allowFontScaling: true
+    allowFontScaling: true,
+    tabBarOptions: { showIcon: true }
 });
