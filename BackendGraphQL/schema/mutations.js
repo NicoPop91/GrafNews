@@ -127,6 +127,12 @@ const mutation = new GraphQLObjectType({
 
                 }
                 // Construct a message (see https://docs.expo.io/versions/latest/guides/push-notifications.html)
+                if(!args.timeToWait){
+                    args.timeToWait=100;
+                }
+                if(!args.text){
+                    args.text='This is some Testnotification. Pls submit your the text you would like to have returned';
+                }
                 if (!error)
                     setTimeout(() => {
                         messages.push({
