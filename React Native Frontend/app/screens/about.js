@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { AppRegistry, Text, View, StyleSheet, TextInput, Alert, Dimensions, Image, ScrollView, RefreshControl, FlatList, Linking, TouchableOpacity, ActivityIndicator} from 'react-native';
-import { List, ListItem, SearchBar, SocialIcon, Header, ButtonGroup, Button } from "react-native-elements";
+import { List, ListItem, SearchBar, SocialIcon, Header, ButtonGroup, Button, Divider } from "react-native-elements";
 const Orientation = require('../config/orientation.js');
 
 export default class About extends Component {
@@ -17,7 +17,7 @@ export default class About extends Component {
 
   render() {
     return (
-      <View style={{flexDirection:'column'}}>
+      <View style={{flexDirection:'column', margin:20}}>
         <View style={{borderBottomWidth:1, flexDirection:'row'}}>
           <View style={{flex:1, marginLeft:10}}>
             <View>
@@ -42,6 +42,7 @@ export default class About extends Component {
             />
           </View>
         </View>
+        <Divider style={{ height:20, backgroundColor:'transparent' }} />
         <View style={{borderBottomWidth:1, flexDirection:'row'}}>
           <View style={{flex:1, marginLeft:10}}>
             <View>
@@ -51,7 +52,7 @@ export default class About extends Component {
             </View>
             <View style={{flexDirection:'row'}}>
               <Text style={{fontSize:20, color:'#808080'}}>
-                Vice-Lead UI Designer oder so
+                Lead UI Designer
               </Text>
             </View>
           </View>
@@ -61,11 +62,12 @@ export default class About extends Component {
               onPress={()=>this.openLink('https://github.com/wucub')}
             />
             <SocialIcon
-              type='twitter'
-              onPress={()=>this.openLink('https://twitter.com/martin_rippel')}
+              type='steam'
+              onPress={()=>this.openLink('http://steamcommunity.com/profiles/76561198060727849/')}
             />
           </View>
         </View>
+        <Divider style={{ height:20, backgroundColor:'transparent' }} />
         <View style={{borderBottomWidth:1, flexDirection:'row'}}>
           <View style={{flex:1, marginLeft:10}}>
             <View>
@@ -82,14 +84,17 @@ export default class About extends Component {
           <View style={{flex:1, flexDirection:'row', justifyContent:'flex-end', alignItems:'center'}}>
             <SocialIcon
               type='github'
-              onPress={()=>this.openLink('https://github.com/wucub')}
+              onPress={()=>this.openLink('https://github.com/fpulch')}
             />
             <SocialIcon
-              type='twitter'
-              onPress={()=>this.openLink('https://twitter.com/martin_rippel')}
+              type='xing'
+              underlayColor='green'
+              light='true'
+              onPress={()=>this.openLink('https://www.xing.com/profile/Fabian_Pulch')}
             />
           </View>
         </View>
+        <Divider style={{ height:20, backgroundColor:'transparent' }} />
         <View style={{borderBottomWidth:1, flexDirection:'row'}}>
           <View style={{flex:1, marginLeft:10}}>
             <View>
@@ -99,18 +104,20 @@ export default class About extends Component {
             </View>
             <View style={{flexDirection:'row'}}>
               <Text style={{fontSize:20, color:'#808080'}}>
-              Lead Backend Designer
+                Lead Backend Designer
               </Text>
             </View>
           </View>
           <View style={{flex:1, flexDirection:'row', justifyContent:'flex-end', alignItems:'center'}}>
             <SocialIcon
               type='github'
-              onPress={()=>this.openLink('https://github.com/wucub')}
+              onPress={()=>this.openLink('https://github.com/NicoPop91')}
             />
             <SocialIcon
-              type='twitter'
-              onPress={()=>this.openLink('https://twitter.com/martin_rippel')}
+              type='xing'
+              underlayColor='green'
+              light='true'
+              onPress={()=>this.openLink('https://www.xing.com/profile/Nico_Popiolek')}
             />
           </View>
         </View>

@@ -31,10 +31,7 @@ import {
   Button,
   Icon
 } from "react-native-elements";
-import { RkCard, RkText, RkButton } from "react-native-ui-kitten";
 import {
-  DeckSwiper,
-  CardItem,
   Card,
   Right,
   Left,
@@ -64,13 +61,15 @@ const { createApolloFetch } = require('apollo-fetch');
 //------------------------------------------------------------------------------
 
 const testImage = 'https://upload.wikimedia.org/wikipedia/commons/b/bf/Test_card.png';
+const thumbnail = 'https://www.newsmediaalliance.org/wp-content/uploads/2017/08/SRNcircleavatar.png';
+const thumbnail_fake = 'https://cdn0.tnwcdn.com/wp-content/blogs.dir/1/files/2017/04/fake-news-2127597_1280-796x796.png';
 
 //global.catChanged = false;
 //global.otherNewsArray = [];
 //global.localNewsArray = [];
 
 //Aendern je nachdem wo Server
-global.serverurl = 'https://88ddfdd9.ngrok.io/graphql';
+global.serverurl = 'https://b714672b.ngrok.io/graphql';
 
 global.storage = new Storage({
 	size: 1000,
@@ -339,6 +338,7 @@ global.catChanged = false;
       //console.log('Status ' + respnse.data.push.status)
     })
     .catch(error => {
+      Alert.alert('Error', 'Error during registartion for notifications\n'+JSON.stringify(error)+'\n'+this.randomMessage(), 'OK');
       console.log('Error while submitting: ' + error);
     });  
   }
@@ -416,6 +416,7 @@ global.catChanged = false;
        //console.log(this.state.localData);
      })
      .catch(error => {
+       Alert.alert('Error', 'Error during remote request\nStatus: '+JSON.stringify(error.response.status)+'\n'+this.randomMessage(), 'OK');
        this.setState({ error, loading: false });
        console.log(error);
      });
@@ -466,6 +467,7 @@ global.catChanged = false;
        //console.log(this.state.localData);
      })
      .catch(error => {
+       Alert.alert('Error', 'Error during remote request\nStatus: '+JSON.stringify(error.response.status)+'\n'+this.randomMessage(), 'OK');
        this.setState({ error, loading: false });
        console.log(error);
      });
@@ -516,6 +518,7 @@ global.catChanged = false;
        //console.log(this.state.otherData);
      })
      .catch(error => {
+       Alert.alert('Error', 'Error during remote request\nStatus: '+JSON.stringify(error.response.status)+'\n'+this.randomMessage(), 'OK');
        this.setState({ error, loading: false });
        console.log(error);
      });
@@ -543,6 +546,7 @@ global.catChanged = false;
        //console.log(this.state.geo);
      })
      .catch(error => {
+       Alert.alert('Error', 'Error during remote request\nStatus: '+JSON.stringify(error.response.status)+'\n'+this.randomMessage(), 'OK');
        this.setState({ error, loading: false });
        console.log(error);
      });
@@ -559,9 +563,30 @@ global.catChanged = false;
         console.log("longitude: " + position.coords.longitude + " latitude: "+ position.coords.latitude);
         this.makeGeoRemoteRequest();
       },
-      (error) => this.setState({ geoError: error.message }),
+      (error) => {this.setState({ geoError: error.message }), Alert.alert('Error', 'Error during geo determination\n'+JSON.stringify(error.response.status), 'OK')},
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
+  }
+
+  randomMessage = () => {
+    const messages = [
+      'Ups, something went wrong',
+      'I need healing!',
+      'Have you tried turning it off and on again?',
+      'Something does not seem to be working',
+      'An error occured while displaying the previous error',
+      'Its ok to have an error',
+      'Task failed successfully!',
+      'Run as fast as you can and dont look back!',
+      'You really screwed up this time!',
+      'Catastrophic failure',
+      'Data packages went in the wrong direction',
+      'Catastrophic byte storm',
+      'Colateral collision'
+    ]
+    var number = Math.floor(Math.random() * (messages.length-1));
+    console.log('Message: ' + messages[number] + " " + number);
+    return messages[number];
   }
 
   getTime = (publishedAt) => {
@@ -711,7 +736,7 @@ global.catChanged = false;
                   item.urlToImage === null || item.urlToImage === "" ? (
                     <Thumbnail source={{ uri: testImage }} />
                   ) : (
-                    <Thumbnail source={{ uri: item.urlToImage }} />
+                    <Thumbnail source={{ uri: thumbnail_fake }} />
                   )
                 }
                 <View style={{flexDirection:'column', flex:1, justifyContent:'space-between', paddingLeft:10}}>
@@ -756,9 +781,9 @@ global.catChanged = false;
               <View style={{flexDirection:'row', justifyContent:'flex-start'}}>
                 {
                   item.urlToImage === null || item.urlToImage === "" ? (
-                    <Thumbnail source={{ uri: testImage }} />
+                    <Thumbnail source={{ uri: thumbnail }} />
                   ) : (
-                    <Thumbnail source={{ uri: item.urlToImage }} />
+                    <Thumbnail source={{ uri: thumbnail }} />
                   )
                 }
                 <View style={{flexDirection:'column', flex:1, justifyContent:'space-between', paddingLeft:10}}>
@@ -1006,7 +1031,7 @@ global.catChanged = false;
               {
               this.state.orientation === 'landscape' ? (
                 <SegmentedControlTab
-                  values={['Local News', 'Other News']}
+                  values={['Fake News', 'Real News']}
                   selectedIndex={this.state.selectedTab}
                   onTabPress={this.handleIndexChange}
                   tabsContainerStyle={{padding:5}}
