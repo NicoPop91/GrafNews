@@ -24,4 +24,4 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - "MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://db:27017/Twitter"
+      - "MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://db:27017/MyDatabase"
