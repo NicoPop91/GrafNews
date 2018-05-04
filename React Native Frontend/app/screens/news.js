@@ -252,8 +252,8 @@ export default class News extends Component {
   }
 
   componentWillMount() {
-    this.registerForPushNotificationsAsync();
-    this._notificationSubscription = Notifications.addListener(this._handleNotification);
+    //this.registerForPushNotificationsAsync();
+    //this._notificationSubscription = Notifications.addListener(this._handleNotification);
   }
 
   _handleNotification = (notification) => {
