@@ -1,0 +1,27 @@
+version: "3"
+services:
+  web:
+    build: ./nodejs
+    depends_on:
+      - "db"
+      - "mongoclient"
+    command: >
+      /bin/bash -c "
+        while ! curl -s -XGET db:27017;
+        do
+          sleep 5;
+          echo sleeping;
+        done
+        echo connecting;
+        npm start;
+        "
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
+  mongoclient:
+    image: mongoclient/mongoclient
+    ports:
+      - "3000:3000"
+    environment:
+      - "MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://db:27017/Twitter"
