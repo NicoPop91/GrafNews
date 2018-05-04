@@ -166,9 +166,9 @@ const options = {
       error: 'Please select on of the categories',
     },
     date:{
-      mode: 'time',
+      mode: 'date',
       config: {
-        format: (date) => moment(date).format('MMMM Do YYYY, h:mm:ss a'),
+        format: (date) => moment(date).format('MMMM Do YYYY'),
       },
     }
   },
