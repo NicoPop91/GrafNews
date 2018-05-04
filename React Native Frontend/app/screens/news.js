@@ -260,7 +260,7 @@ export default class News extends Component {
     this.setState({notification: notification});
   };
 
-  async registerForPushNotificationsAsync() {
+  /*async registerForPushNotificationsAsync() {
     const { status: existingStatus } = await Permissions.getAsync(
       Permissions.NOTIFICATIONS
     );
@@ -287,7 +287,7 @@ export default class News extends Component {
       Alert.alert('Error', 'Error during registartion for notifications\n'+JSON.stringify(error)+'\n'+this.randomMessage(), 'OK');
       console.log('Error while submitting: ' + error);
     });  
-  }
+  }*/
 
   makeRemoteRequest = (local, category, country, language, date, loadMore) => {
     if(date == undefined){
