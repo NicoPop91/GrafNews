@@ -255,7 +255,7 @@ export default class Settings extends Component {
                 <Picker.Item label="Entertainment" value="entertainment" />
                 <Picker.Item label="Health" value="health" />
                 <Picker.Item label="Science" value="science" />
-                <Picker.Item label="Sport" value="sport" />
+                <Picker.Item label="Sports" value="sports" />
                 <Picker.Item label="Technology" value="technology" />
               </Picker>
             </View>
@@ -390,7 +390,7 @@ export default class Settings extends Component {
                   <Picker.Item label="Entertainment" value="entertainment" />
                   <Picker.Item label="Health" value="health" />
                   <Picker.Item label="Science" value="science" />
-                  <Picker.Item label="Sport" value="sport" />
+                  <Picker.Item label="Sports" value="sports" />
                   <Picker.Item label="Technology" value="technology" />
                 </Picker>
               ) : (
@@ -410,7 +410,7 @@ export default class Settings extends Component {
                   <Picker.Item label="Entertainment" value="entertainment" />
                   <Picker.Item label="Health" value="health" />
                   <Picker.Item label="Science" value="science" />
-                  <Picker.Item label="Sport" value="sport" />
+                  <Picker.Item label="Sports" value="sports" />
                   <Picker.Item label="Technology" value="technology" />
                 </Picker>
               )}
