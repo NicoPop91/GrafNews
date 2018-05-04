@@ -69,7 +69,7 @@ const thumbnail_fake = 'https://cdn0.tnwcdn.com/wp-content/blogs.dir/1/files/201
 //global.localNewsArray = [];
 
 //Aendern je nachdem wo Server
-global.serverurl = 'https://b714672b.ngrok.io/graphql';
+global.serverurl = 'https://6f975d96.ngrok.io/graphql';
 
 global.storage = new Storage({
 	size: 1000,
@@ -245,6 +245,7 @@ export default class News extends Component {
       //var loadedSomeNews = false;
       //for (var i = 0; i < global.categories.length; i++) {
         //if(global.categories[i].subscribed === true) {
+          await this.getGeoLocation();
           await this.makeRemoteRequest(true, global.category, global.country, global.language);
           await this.makeRemoteRequest(false, global.category, global.country, global.language);
           //await this.makeRemoteRequest(true, global.categories[i].cat);
@@ -414,7 +415,7 @@ global.catChanged = false;
         }
        }
      }).then(res => {
-       //console.log(this.state.localData);
+       console.log("Remote Request returned: " + JSON.stringify(res));
      })
      .catch(error => {
        Alert.alert('Error', 'Error during remote request\nStatus: '+JSON.stringify(error.response.status)+'\n'+this.randomMessage(), 'OK');
