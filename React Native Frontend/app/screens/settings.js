@@ -188,7 +188,7 @@ export default class Settings extends Component {
                   style={{flex:3, height: 40, borderColor: 'gray', borderWidth: 0.1}}
                   onChangeText={(text) => global.serverurl = text}
                   value={global.serverurl}
-                  placeholder={'Please enter the adress of the server'}
+                  placeholder={'Please enter the URL of the server'}
                 />
               </View>
             </View>
@@ -286,8 +286,8 @@ export default class Settings extends Component {
               >
                 <Picker.Item label="All" value="" />
                 <Picker.Item label="Germany" value="de" />
-                <Picker.Item label="England" value="en" />
-                <Picker.Item label="USA" value="us" />
+                <Picker.Item label="United Kingdom" value="en" />
+                <Picker.Item label="United States" value="us" />
               </Picker>
             </View>
           </View>
@@ -472,8 +472,8 @@ export default class Settings extends Component {
                 >
                   <Picker.Item label="All" value="" />
                   <Picker.Item label="Germany" value="de" />
-                  <Picker.Item label="England" value="en" />
-                  <Picker.Item label="USA" value="us" />
+                  <Picker.Item label="United Kingdom" value="en" />
+                  <Picker.Item label="United States" value="us" />
                 </Picker>
               ) : (
                 <Picker
@@ -489,8 +489,8 @@ export default class Settings extends Component {
                 >
                   <Picker.Item label="All" value="" />
                   <Picker.Item label="Germany" value="de" />
-                  <Picker.Item label="England" value="en" />
-                  <Picker.Item label="USA" value="us" />
+                  <Picker.Item label="United Kingdom" value="en" />
+                  <Picker.Item label="United States" value="us" />
                 </Picker>
               )}
             </View>
@@ -598,7 +598,7 @@ export default class Settings extends Component {
             </Text>
           ) : null}
           <SegmentedControlTab
-            values={["Subscriptions", "Informations"]}
+            values={["Subscriptions", "Information"]}
             selectedIndex={this.state.selectedTab}
             onTabPress={this.handleIndexChange}
             tabsContainerStyle={{ padding: 5 }}
