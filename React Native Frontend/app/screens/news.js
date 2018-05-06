@@ -68,6 +68,8 @@ const thumbnail_fake = 'https://cdn0.tnwcdn.com/wp-content/blogs.dir/1/files/201
 //global.otherNewsArray = [];
 //global.localNewsArray = [];
 
+global.serverurl = "https://cba524a9.ngrok.io/graphql";
+
 global.storage = new Storage({
 	size: 1000,
 	storageBackend: AsyncStorage,
