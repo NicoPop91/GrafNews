@@ -68,8 +68,7 @@ const thumbnail_fake = 'https://cdn0.tnwcdn.com/wp-content/blogs.dir/1/files/201
 //global.otherNewsArray = [];
 //global.localNewsArray = [];
 
-//Aendern je nachdem wo Server
-global.serverurl = 'https://b714672b.ngrok.io/graphql';
+global.serverurl = "https://cba524a9.ngrok.io/graphql";
 
 global.storage = new Storage({
 	size: 1000,
@@ -184,7 +183,11 @@ export default class News extends Component {
       longitude: null,
       geoError: null,
       componentDidMount: false,
-      currentArticle: null,
+      currentArticleURL: null,
+      currentArticleDescription: null,
+      currentArticleAuthor: null,
+      currentArticleDate: null,
+      currentArticlePublishedByUser: null,
       selectedTab: 0,
       notification: {},
       image: 'https://source.unsplash.com/random',
@@ -242,80 +245,21 @@ export default class News extends Component {
   }
 
   async reloadNews () {
-      //var loadedSomeNews = false;
-      //for (var i = 0; i < global.categories.length; i++) {
-        //if(global.categories[i].subscribed === true) {
-          await this.makeRemoteRequest(true, global.category, global.country, global.language);
-          await this.makeRemoteRequest(false, global.category, global.country, global.language);
-          //await this.makeRemoteRequest(true, global.categories[i].cat);
-          //await this.makeRemoteRequest(false, global.categories[i].cat);
-          //await this.makeRemoteRequestData(true, global.categories[i].cat);
-          //await this.makeRemoteRequestData(false, global.categories[i].cat);
-        //} //END if
-        //if(!loadedSomeNews) {
-          //await this.makeRemoteRequest(true, 'global.categories[i].cat');
-          //await this.makeRemoteRequest(false, global.categories[i].cat);
-        //}
-      //} //END for
-
-      /*var otherNewsJSON = [];
-      var localNewsJSON = [];
-
-    console.log("CHECK2" + "\n" + JSON.stringify(global.otherNewsArray) + "\n");
-    console.log("CHECK3" + "\n" + JSON.stringify(global.localNewsArray) + "\n");
-
-for (var j = 0; j < global.otherNewsArray.length; j++) {
-  otherNewsJSON.push(global.otherNewsArray[j].data.articles);
-}
-
-for (var k = 0; k < global.localNewsArray.length; k++) {
-  localNewsJSON.push(global.localNewsArray[k].data.articles);
-}
-
-console.log("Verarbeitete OtherNews " + JSON.stringify(otherNewsJSON));
-
-function custom_sort(a, b) {
-  a = new Date(a.publishedAt);
-  b = new Date(b.publishedAt);
-  return a>b ? -1 : a<b ? 1 : 0;
-}
-
-otherNewsJSON.sort(custom_sort);
-localNewsJSON.sort(custom_sort);
-
-this.setState({
-  localData: localNewsJSON,
-  loading: false,
-  refreshing: false,
-  lastUpdate: new Date
-});
-
-this.setState({
-  localData: otherNewsJSON,
-  loading: false,
-  refreshing: false,
-  lastUpdate: new Date
-});
-
-global.otherNewsArray = new Array();
-global.localNewsArray = new Array();
-global.catChanged = false;
-    loadedSomeNews = true;
-
-    */
-
+    await this.getGeoLocation();
+    await this.makeRemoteRequest(true, global.category, global.country, global.language);
+    await this.makeRemoteRequest(false, global.category, global.country, global.language);
   }
 
   componentWillMount() {
-    this.registerForPushNotificationsAsync();
-    this._notificationSubscription = Notifications.addListener(this._handleNotification);
+    //this.registerForPushNotificationsAsync();
+    //this._notificationSubscription = Notifications.addListener(this._handleNotification);
   }
 
   _handleNotification = (notification) => {
     this.setState({notification: notification});
   };
 
-  async registerForPushNotificationsAsync() {
+  /*async registerForPushNotificationsAsync() {
     const { status: existingStatus } = await Permissions.getAsync(
       Permissions.NOTIFICATIONS
     );
@@ -342,7 +286,7 @@ global.catChanged = false;
       Alert.alert('Error', 'Error during registartion for notifications\n'+JSON.stringify(error)+'\n'+this.randomMessage(), 'OK');
       console.log('Error while submitting: ' + error);
     });  
-  }
+  }*/
 
   makeRemoteRequest = (local, category, country, language, date, loadMore) => {
     if(date == undefined){
@@ -414,7 +358,7 @@ global.catChanged = false;
         }
        }
      }).then(res => {
-       //console.log(this.state.localData);
+       console.log("Remote Request returned: " + JSON.stringify(res));
      })
      .catch(error => {
        Alert.alert('Error', 'Error during remote request\nStatus: '+JSON.stringify(error.response.status)+'\n'+this.randomMessage(), 'OK');
@@ -647,14 +591,14 @@ global.catChanged = false;
     return(difference);
   }
 
-  handleRefresh = () => {
+   handleRefresh = () => {
     this.setState(
       {
         refreshing: true,
         image: 'https://source.unsplash.com/random'
       },
       () => {
-        this.reloadNews();
+        this.reloadNews().then(()=>{this.setState({refreshing:false})});
       }
     );
   };
@@ -893,8 +837,14 @@ global.catChanged = false;
            ) : null
         }
         ListFooterComponent={this.renderFooter}
-        onRefresh={this.handleRefresh}
+        //onRefresh={this.handleRefresh}
         refreshing={this.state.refreshing}
+        refreshControl = {
+        <RefreshControl
+          refreshing = {this.state.refreshing}
+          onRefresh = {this.handleRefresh.bind(this)}
+        />
+        }
         //onEndReached={this.handleLoadMore(false)}
         //onEndReachedThreshold={20}
       />
@@ -970,7 +920,7 @@ global.catChanged = false;
   };
 
   openArticle = item => {
-    this.setState({ currentArticle: item.url })
+    this.setState({ currentArticleURL: item.url, currentArticleDescription: item.description, currentArticleAuthor: item.author, currentArticleDate: item.publishedAt, currentArticlePublishedByUser: item.publishedByUser })
     //console.log('Status: ' + this.state.orientation);
     if(this.state.orientation === 'portrait'){
       item.longitude=this.state.longitude;
@@ -1068,16 +1018,40 @@ global.catChanged = false;
               ) : null
             }
             {
-              this.state.orientation === 'landscape' && this.state.currentArticle !== null ? (
+              this.state.orientation === 'landscape' && this.state.currentArticleURL !== null && this.state.currentArticlePublishedByUser === true ? (
                 <View style={{flex:1.5}}>
+                  <View style={{flexDirection:'column', backgroundColor: "#CED0CE", opacity:0.6}}>
+                    <View style={{flexDirection:'column'}}>
+                      <Text style={{margin:10, fontSize:16}}>
+                        {this.state.currentArticleDescription}
+                      </Text>
+                    </View>
+                    <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                      <Text style={{margin:10, color:'#696969', fontSize:12}}>
+                        {this.state.currentArticleAuthor}
+                      </Text>
+                      <Text style={{margin:10, color:'#696969', fontSize:12}}>
+                        {this.state.currentArticleDate.toLocaleString()}
+                      </Text>
+                    </View>
+                  </View>
                   <WebView
-                    source={{uri: this.state.currentArticle}}
+                    source={{uri: this.state.currentArticleURL}}
                   />
                 </View>
               ) : null
             }
             {
-              this.state.orientation === 'landscape' && this.state.currentArticle === null && this.state.componentDidMount ? (
+              this.state.orientation === 'landscape' && this.state.currentArticleURL !== null && this.state.currentArticlePublishedByUser === false ? (
+                <View style={{flex:1.5}}>
+                  <WebView
+                    source={{uri: this.state.currentArticleURL}}
+                  />
+                </View>
+              ) : null
+            }
+            {
+              this.state.orientation === 'landscape' && this.state.currentArticleURL === null && this.state.componentDidMount ? (
                 <View style={{flex: 1.5, flexDirection:'row', justifyContent:'center', paddingHorizontal: 3, paddingTop: 10, alignItems: 'center'}}>
                 <View style={{backgroundColor:'rgba(0, 0, 0, 0.6)', borderRadius:5}}> 
                 <Text style={{ color:'white', fontWeight: "bold", fontFamily: "MoonGet", fontSize: 16, paddingHorizontal:10, textAlign: 'center'}}>
