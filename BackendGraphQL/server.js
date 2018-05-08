@@ -13,7 +13,7 @@ let newsapi = new NewsAPI('aa8d9ecd389b4f358eb9c411ffa14724');
 const app = express();
 
 //const MONGO_URI = 'mongodb://192.168.178.39:27017/NewsDB/';
-const MONGO_URI = 'mongodb://localhost:27017/MyDatabase';
+const MONGO_URI = 'mongodb://db:27017/MyDatabase';
 // const MONGO_URI = 'https://g4qr3mtniplvry1i.myfritz.net:27017/NewsDB';
 // const MONGO_URI = 'mongodb://192.168.99.100:32768/MyDatabase';
 // https://g4qr3mtniplvry1i.myfritz.net:27017/NewsDB

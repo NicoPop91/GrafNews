@@ -2,3 +2,26 @@
 - Eigene (fake-) News erstellen (Kamera, News direkt weiter Tweeten/posten...)
 - lokalere Lokalnews als nur Land (Google Maps?)
 - zusätzliche tags -> Graphql besser nutzen
+
+Geokoordinaten DHBW Mannheim:
+8.53525 49.47463
+
+Vorlage Fakenews GraphiQl:
+mutation{
+  addArticle(author:"Vertrauenswürdige Zeitung",
+    					title:"Oracle kauft SAP - über 10.000 Stellenstreichungen!",
+    					description:"Laut einer Pressemitteilung vom Donnerstag haben Vorstand und Aufsichtsrat der Oracle AG einer feindlichen Übernahme der SAP SE zugestimmt. Ziel ist, die Walldorfer durch massive Stellenstreichungen profitabler für die neuen Eigner zu machen.",
+    					url:"http://google.com",
+    					urlToImage:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/SAP_2011_logo.svg/2000px-SAP_2011_logo.svg.png",
+    					country:"de",
+    					category:"general",
+    					language:"de",
+    					publishedAt:"2018-04-06T12:43:29.582Z",
+    					publishedByUser: true,
+    					geotype:"Point",
+    					lng:"8.53525",
+    					lat:"49.47463"
+  ){
+    title
+  }
+}
