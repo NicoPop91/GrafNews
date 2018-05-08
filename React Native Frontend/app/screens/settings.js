@@ -17,7 +17,8 @@ import {
   Platform,
   TouchableWithoutFeedback,
   AsyncStorage,
-  Picker
+  Picker,
+  TouchableHighlight
 } from "react-native";
 import {
   List,
@@ -64,7 +65,8 @@ export default class Settings extends Component {
       selectedTab: 0,
       category: global.category,
       country: global.country,
-      language: global.language
+      language: global.language,
+      test: global.serverurl
     };
 
     Dimensions.addEventListener("change", () => {
@@ -172,6 +174,13 @@ export default class Settings extends Component {
     } catch (error) {}
   };
 
+  change = () => {
+    console.log('Text: '+this.state.test);
+    console.log('Before: '+global.serverurl);
+    global.serverurl = this.state.test;
+    console.log('After: '+global.serverurl);
+  }
+
   renderDevInfo = () => {
     return (
       <ScrollView>
@@ -183,13 +192,20 @@ export default class Settings extends Component {
               serverdata
             </Text>
             <View>
-              <View stxle={{flex:1, flexDirection: 'row'}}>
-                <TextInput
-                  style={{flex:3, height: 40, borderColor: 'gray', borderWidth: 0.1}}
-                  onChangeText={(text) => global.serverurl = text}
-                  value={global.serverurl}
-                  placeholder={'Please enter the URL of the server'}
-                />
+              <View style={{flex:1, flexDirection: 'row'}}>
+                <View style={{flex:2.8}}>
+                  <TextInput
+                    style={{flex:3, height: 40, borderColor: 'gray', borderWidth: 0.1}}
+                    onChangeText={(text) => this.setState({test:text})}
+                    value={this.state.test}
+                    placeholder={'Please enter the URL of the server'}
+                  />
+                </View>
+                <View style={{flex:1}}>
+                  <TouchableHighlight style={styles.button} onPress={()=>this.change()} underlayColor='#99d9f4'>
+                    <Text style={styles.buttonText}>Apply</Text>
+                  </TouchableHighlight>
+                </View>
               </View>
             </View>
           </View>
@@ -653,3 +669,36 @@ export default class Settings extends Component {
     }
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  container2: {
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#ffffff',
+  },
+  title: {
+    fontSize: 30,
+    alignSelf: 'center',
+    marginBottom: 30
+  },
+  buttonText: {
+    fontSize: 18,
+    color: 'white',
+    alignSelf: 'center',
+    paddingHorizontal: 10
+  },
+  button: {
+    height: 36,
+    backgroundColor: '#48BBEC',
+    borderColor: '#48BBEC',
+    borderWidth: 1,
+    borderRadius: 8,
+    margin:10,
+    justifyContent: 'center'
+  }
+});
