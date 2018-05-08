@@ -1,7 +1,4 @@
 <h1>GrafNews</h1>
-
-Eine vollständige Dokumentation des Projekts und dessen Installation findet sich im <a href="https://github.com/NicoPop91/GrafNews/wiki">Wiki</a> dieses Repositories.
-
 <h2>Installation</h2>
 <ul>
   <li>Clone the project</li>
