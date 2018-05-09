@@ -180,6 +180,10 @@ export default class Settings extends Component {
     console.log('Before: '+global.serverurl);
     if(validUrl.isWebUri(this.state.server)){
       global.serverurl = this.state.server;
+    } else {
+      this.state.server = global.serverurl;
+      console.log('Server: '+this.state.server);
+      this.forceUpdate();
     }
     console.log('After: '+global.serverurl);
   }
