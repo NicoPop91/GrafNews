@@ -43,6 +43,7 @@ import Geocoder from "react-native-geocoder";
 import CheckBox from "react-native-checkbox";
 import SegmentedControlTab from "react-native-segmented-control-tab";
 import Storage from "react-native-storage";
+var validUrl = require('valid-url');
 const Device = require("react-native-device-detection");
 const Orientation = require("../config/orientation.js");
 
@@ -66,7 +67,7 @@ export default class Settings extends Component {
       category: global.category,
       country: global.country,
       language: global.language,
-      test: global.serverurl
+      server: global.serverurl
     };
 
     Dimensions.addEventListener("change", () => {
@@ -175,9 +176,11 @@ export default class Settings extends Component {
   };
 
   change = () => {
-    console.log('Text: '+this.state.test);
+    console.log('Text: '+this.state.server);
     console.log('Before: '+global.serverurl);
-    global.serverurl = this.state.test;
+    if(validUrl.isWebUri(this.state.server)){
+      global.serverurl = this.state.server;
+    }
     console.log('After: '+global.serverurl);
   }
 
@@ -196,8 +199,8 @@ export default class Settings extends Component {
                 <View style={{flex:2.8}}>
                   <TextInput
                     style={{flex:3, height: 40, borderColor: 'gray', borderWidth: 0.1}}
-                    onChangeText={(text) => this.setState({test:text})}
-                    value={this.state.test}
+                    onChangeText={(text) => this.setState({server:text})}
+                    value={this.state.server}
                     placeholder={'Please enter the URL of the server'}
                   />
                 </View>
