@@ -27,8 +27,8 @@ if (!MONGO_URI) {
 
 mongoose.Promise = global.Promise;
 mongoose.connect(MONGO_URI, {
-  useMongoClient: true,
-  /* other options */
+    useMongoClient: true,
+    /* other options */
 });
 mongoose.connection
     .once('open', () => console.log('Connected to MongoLab instance.'))
@@ -53,7 +53,7 @@ app.listen(4000, () => {
 // news = individueller Artikel aus dem Result
 
 const categories = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'];
-const countries = ['de', 'us', 'gb','at'];
+const countries = ['de', 'us', 'gb', 'at'];
 const languages = ['de', 'en']
 setInterval(() => {
     categories.forEach((category) => {
@@ -61,7 +61,7 @@ setInterval(() => {
             countries.forEach((country) => {
 
 
-                if (!((country === 'de' && language === 'en') || (country === 'us' && language === 'de') || (country === 'gb' && language === 'de')||(country === 'at' && language === 'en'))) {
+                if (!((country === 'de' && language === 'en') || (country === 'us' && language === 'de') || (country === 'gb' && language === 'de') || (country === 'at' && language === 'en'))) {
                     newsapi.v2.topHeadlines({
                         category: category,
                         language: language,
@@ -93,30 +93,34 @@ setInterval(() => {
                                                 type: "Point",
                                                 point: [null,null]
                                             },*/
-                                        }).save();
+                                        }).save().catch((err) => {
+                                            if (err) {
+                                                console.log(err)
+                                            }
+                                        });
                                     }
                                 });
                         });
-                    }).catch((err)=>{
-                        if(err){
+                    }).catch((err) => {
+                        if (err) {
                             //APIKey 1 ea30eaed8d1d45e3828339efc4a12c08
                             //APIKey 2 aa8d9ecd389b4f358eb9c411ffa14724
                             //APIKey 3 bdeb31f66ff14026ae9db0a657aafa42
                             apiKeyIndex++;
-                            if(apiKeyIndex=6){
+                            if (apiKeyIndex = 6) {
                                 newsapi = new NewsAPI('ea30eaed8d1d45e3828339efc4a12c08');
-                                apiKeyIndex=1;
+                                apiKeyIndex = 1;
                             }
-                            if(apiKeyIndex=2){
-                               newsapi = new NewsAPI('aa8d9ecd389b4f358eb9c411ffa14724'); 
+                            if (apiKeyIndex = 2) {
+                                newsapi = new NewsAPI('aa8d9ecd389b4f358eb9c411ffa14724');
                             }
-                            if(apiKeyIndex=3){
+                            if (apiKeyIndex = 3) {
                                 newsapi = new NewsAPI('bdeb31f66ff14026ae9db0a657aafa42');
                             }
-                            if(apiKeyIndex=4){
+                            if (apiKeyIndex = 4) {
                                 newsapi = new NewsAPI('722504dd56e546b09ad7f5d890c5d55b');
                             }
-                            if(apiKeyIndex=5){
+                            if (apiKeyIndex = 5) {
                                 newsapi = new NewsAPI('8fd6c59bab554af39cd2ed4d18439e92');
                             }
                         }
@@ -128,4 +132,4 @@ setInterval(() => {
             });
         });
     });
-},780000 ); //1560000
+}, 780000); //1560000
